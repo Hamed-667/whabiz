@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "T-shirt Classique",
+    "price": 2500,
+    "image": "https://via.placeholder.com/300x300/4A90E2/ffffff?text=T-shirt"
+  },
+  {
+    "id": 2,
+    "name": "Casquette Sport",
+    "price": 1500,
+    "image": "https://via.placeholder.com/300x300/7B68EE/ffffff?text=Casquette"
+  },
+  {
+    "id": 3,
+    "name": "Sac à dos",
+    "price": 4000,
+    "image": "https://via.placeholder.com/300x300/50C878/ffffff?text=Sac"
+  }
+]
