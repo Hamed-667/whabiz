@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhaBiz - Administration</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Styles spécifiques à l'admin */
+    .admin-header {
+      background: linear-gradient(135deg, #FF6B6B 0%, #C44569 100%);
+    }
+    
+    .admin-badge {
+      display: inline-block;
+      background: #fff;
+      color: #FF6B6B;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    
+    .back-to-shop {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      background: rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 5px;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    
+    .back-to-shop:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-box h2 {
+      color: #FF6B6B;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background: #FF6B6B;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .login-box button:hover {
+      background: #C44569;
+    }
+
+    #adminContent {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Écran de connexion -->
+  <div id="loginScreen">
+    <header class="admin-header">
+      <div style="text-align: center; padding: 20px;">
+        <h1>🔐 WhaBiz Admin</h1>
+        <p>Zone d'administration</p>
+      </div>
+    </header>
+    
+    <div class="login-container">
+      <div class="login-box">
+        <h2>🔑 Connexion</h2>
+        <form id="loginForm">
+          <input type="password" id="adminPassword" placeholder="Mot de passe admin" required>
+          <button type="submit">Se connecter</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu Admin (caché par défaut) -->
+  <div id="adminContent">
+    <!-- En-tête Admin -->
+    <header class="admin-header">
+      <div class="header-content">
+        <div>
+          <h1>🛍️ WhaBiz Admin</h1>
+          <span class="admin-badge">ADMINISTRATEUR</span>
+          <br>
+          <a href="/" class="back-to-shop">← Voir la boutique</a>
+        </div>
+        <button onclick="logout()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+          🚪 Déconnexion
+        </button>
+      </div>
+    </header>
+
+    <!-- Formulaire pour ajouter un produit -->
+    <section class="add-product">
+      <h2 id="formTitle">➕ Ajouter un produit</h2>
+      <form id="productForm">
+        <input type="text" id="productName" placeholder="Nom du produit" required>
+        <input type="number" id="productPrice" placeholder="Prix (FCFA)" required>
+        <input type="text" id="productImage" placeholder="URL de l'image (optionnel)">
+        <button type="submit" id="submitBtn">Ajouter</button>
+      </form>
+    </section>
+
+    <!-- Liste des produits -->
+    <section class="products">
+      <h2>📦 Gestion des produits</h2>
+      <div id="productList" class="product-grid">
+        <!-- Les produits s'afficheront ici automatiquement -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Script JavaScript ADMIN -->
+  <script src="admin.js"></script>
+</body>
+</html>

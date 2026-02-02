@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhaBiz - Boutique</title>
+  <title>WhaBiz - E-commerce</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,6 +21,17 @@
       </div>
     </div>
   </header>
+
+  <!-- Formulaire pour ajouter un produit -->
+  <section class="add-product">
+    <h2>➕ Ajouter un produit</h2>
+    <form id="productForm">
+      <input type="text" id="productName" placeholder="Nom du produit" required>
+      <input type="number" id="productPrice" placeholder="Prix (FCFA)" required>
+      <input type="text" id="productImage" placeholder="URL de l'image (optionnel)">
+      <button type="submit">Ajouter</button>
+    </form>
+  </section>
 
   <!-- Liste des produits -->
   <section class="products">
@@ -53,7 +64,7 @@
     </div>
   </div>
 
-  <!-- Script JavaScript CLIENT -->
-  <script src="client.js"></script>
+  <!-- Script JavaScript -->
+  <script src="app.js"></script>
 </body>
 </html>
