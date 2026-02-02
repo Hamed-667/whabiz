@@ -3,30 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhaBiz - Boutique</title>
+  <title>WhaBiz - E-commerce</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-toggle {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    .admin-toggle:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    .admin-section {
+      display: none;
+    }
+    
+    .admin-mode .admin-section {
+      display: block;
+    }
+    
+    .admin-mode header {
+      background: linear-gradient(135deg, #FF6B6B 0%, #C44569 100%);
+    }
+    
+    .admin-badge {
+      display: inline-block;
+      background: #fff;
+      color: #FF6B6B;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    
+    .admin-buttons {
+      display: none;
+    }
+    
+    .admin-mode .admin-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+  </style>
 </head>
 <body>
   
-  <!-- En-tête avec icône panier -->
+  <!-- En-tête -->
   <header>
     <div class="header-content">
       <div>
         <h1>🛍️ WhaBiz</h1>
-        <p>Votre boutique en ligne</p>
+        <p>Votre boutique en ligne <span id="adminBadge" class="admin-badge" style="display:none;">ADMIN</span></p>
       </div>
-      <div class="cart-icon" onclick="toggleCart()">
-        🛒
-        <span id="cartCount" class="cart-count">0</span>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="cart-icon" onclick="toggleCart()">
+          🛒
+          <span id="cartCount" class="cart-count">0</span>
+        </div>
+        <button id="adminToggle" class="admin-toggle" onclick="toggleAdminMode()">🔑 Admin</button>
       </div>
     </div>
   </header>
+
+  <!-- Section admin (cachée par défaut) -->
+  <section class="add-product admin-section">
+    <h2 id="formTitle">➕ Ajouter un produit</h2>
+    <form id="productForm">
+      <input type="text" id="productName" placeholder="Nom du produit" required>
+      <input type="number" id="productPrice" placeholder="Prix (FCFA)" required>
+      <input type="text" id="productImage" placeholder="URL de l'image (optionnel)">
+      <button type="submit" id="submitBtn">Ajouter</button>
+    </form>
+  </section>
 
   <!-- Liste des produits -->
   <section class="products">
     <h2>📦 Nos produits</h2>
     <div id="productList" class="product-grid">
-      <!-- Les produits s'afficheront ici automatiquement -->
+      <!-- Les produits s'afficheront ici -->
     </div>
   </section>
 
@@ -39,7 +102,7 @@
       </div>
       
       <div id="cartItems" class="cart-items">
-        <!-- Les articles du panier s'afficheront ici -->
+        <!-- Les articles du panier -->
       </div>
       
       <div class="cart-footer">
@@ -53,7 +116,7 @@
     </div>
   </div>
 
-  <!-- Script JavaScript CLIENT -->
-  <script src="client.js"></script>
+  <!-- Script JavaScript -->
+  <script src="app.js"></script>
 </body>
 </html>
