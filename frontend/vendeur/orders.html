@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhaBiz - Commandes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendeur-ui.css">
+  <style>
+    :root{
+      --bg:#0b111c;
+      --panel:#131b2a;
+      --panel-soft:#182234;
+      --line:#27334b;
+      --text:#f4f7ff;
+      --muted:#9eacc8;
+      --brand:#29a36a;
+      --warn:#f5b43b;
+      --danger:#e05f6f;
+      --ok:#35b87a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'DM Sans',sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 480px at 10% -10%,rgba(41,163,106,0.20),transparent 60%),
+        radial-gradient(880px 420px at 100% -20%,rgba(72,108,214,0.22),transparent 60%),
+        var(--bg);
+      min-height:100vh;
+    }
+    .header{
+      position:sticky;
+      top:0;
+      z-index:20;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      backdrop-filter:blur(10px);
+      background:rgba(11,17,28,0.86);
+    }
+    .header-inner{
+      max-width:1260px;
+      margin:0 auto;
+      padding:16px 22px;
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .brand-badge{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      font-family:'Outfit',sans-serif;
+      font-weight:800;
+      font-size:18px;
+      color:#04150d;
+      background:linear-gradient(135deg,#2ecf83,#c7ec67);
+      box-shadow:0 8px 24px rgba(46,207,131,0.35);
+    }
+    .shop-name{
+      font-family:'Outfit',sans-serif;
+      font-size:20px;
+      font-weight:700;
+    }
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .tab{
+      text-decoration:none;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:700;
+      transition:all 0.2s ease;
+    }
+    .tab:hover{color:var(--text);border-color:rgba(255,255,255,0.26)}
+    .tab.active{
+      color:#092014;
+      border-color:transparent;
+      background:linear-gradient(135deg,#2ecf83,#c7ec67);
+    }
+    .header-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:10px;
+      background:rgba(255,255,255,0.05);
+      color:var(--text);
+      font-weight:700;
+      cursor:pointer;
+      padding:10px 14px;
+      font-size:13px;
+    }
+    .btn:hover{background:rgba(255,255,255,0.10)}
+    .btn-danger{
+      background:rgba(224,95,111,0.14);
+      border-color:rgba(224,95,111,0.38);
+      color:#ffccd4;
+    }
+    .layout{
+      max-width:1260px;
+      margin:0 auto;
+      padding:28px 22px 36px;
+      display:grid;
+      gap:20px;
+    }
+    .title{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:end;
+    }
+    .title h1{
+      margin:0;
+      font-family:'Outfit',sans-serif;
+      font-size:32px;
+      line-height:1.05;
+    }
+    .title p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+    }
+    .stat{
+      background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:14px;
+      padding:16px;
+    }
+    .stat .k{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.07em;
+      margin-bottom:6px;
+    }
+    .stat .v{
+      font-family:'Outfit',sans-serif;
+      font-size:28px;
+      font-weight:800;
+    }
+    .controls{
+      display:grid;
+      grid-template-columns:2.3fr 1fr 1fr 1fr auto auto;
+      gap:10px;
+      align-items:center;
+      background:rgba(19,27,42,0.78);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:14px;
+      padding:12px;
+    }
+    .input,.select{
+      width:100%;
+      background:var(--panel-soft);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:11px 12px;
+      font-size:14px;
+      outline:none;
+    }
+    .input:focus,.select:focus{
+      border-color:var(--brand);
+      box-shadow:0 0 0 2px rgba(41,163,106,0.20);
+    }
+    .quick-filters{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .chip{
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.04);
+      color:var(--muted);
+      border-radius:999px;
+      padding:7px 11px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .chip.active{
+      color:#072216;
+      border-color:transparent;
+      background:linear-gradient(135deg,#3ad78d,#d2f283);
+    }
+    .orders{
+      display:grid;
+      gap:12px;
+    }
+    .order{
+      background:linear-gradient(180deg,rgba(19,27,42,0.85),rgba(16,23,36,0.85));
+      border:1px solid rgba(255,255,255,0.11);
+      border-radius:16px;
+      padding:16px;
+    }
+    .order-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .order-id{
+      font-family:'Outfit',sans-serif;
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:2px;
+    }
+    .order-meta{
+      color:var(--muted);
+      font-size:13px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .badges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .badge{
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+    }
+    .status-en_attente{background:rgba(245,180,59,0.16);border-color:rgba(245,180,59,0.45);color:#ffd27a}
+    .status-confirmee{background:rgba(98,161,255,0.16);border-color:rgba(98,161,255,0.45);color:#bcd8ff}
+    .status-expediee{background:rgba(166,112,255,0.16);border-color:rgba(166,112,255,0.45);color:#decbff}
+    .status-livree{background:rgba(53,184,122,0.18);border-color:rgba(53,184,122,0.48);color:#9ef4c8}
+    .status-annulee{background:rgba(224,95,111,0.17);border-color:rgba(224,95,111,0.46);color:#ffc0ca}
+    .pay-paid{background:rgba(53,184,122,0.14);border-color:rgba(53,184,122,0.35);color:#9ef4c8}
+    .pay-pending{background:rgba(245,180,59,0.14);border-color:rgba(245,180,59,0.35);color:#ffd27a}
+    .pay-failed,.pay-cancelled{background:rgba(224,95,111,0.14);border-color:rgba(224,95,111,0.35);color:#ffc0ca}
+    .badge-overdue{background:rgba(224,95,111,0.18);border-color:rgba(224,95,111,0.5);color:#ffb4bf}
+    .timeline{
+      margin:10px 0 14px;
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:6px;
+    }
+    .step{
+      text-align:center;
+      padding:8px 6px;
+      border-radius:10px;
+      font-size:12px;
+      color:var(--muted);
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .step.done{
+      color:#c7ffd9;
+      border-color:rgba(53,184,122,0.40);
+      background:rgba(53,184,122,0.12);
+    }
+    .step.current{
+      color:#071f13;
+      border-color:transparent;
+      background:linear-gradient(135deg,#3ad78d,#d2f283);
+      font-weight:800;
+    }
+    .items{
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .item{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      font-size:14px;
+      background:rgba(255,255,255,0.02);
+    }
+    .item:last-child{border-bottom:none}
+    .total{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      padding:11px 12px;
+      font-size:15px;
+      font-weight:800;
+      background:rgba(41,163,106,0.10);
+      border-top:1px solid rgba(41,163,106,0.36);
+    }
+    .actions{
+      margin-top:12px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .status-select{
+      min-width:176px;
+    }
+    .btn-sm{
+      font-size:12px;
+      padding:8px 11px;
+      border-radius:9px;
+    }
+    .empty{
+      border:1px dashed rgba(255,255,255,0.24);
+      border-radius:14px;
+      padding:40px 20px;
+      text-align:center;
+      color:var(--muted);
+      background:rgba(19,27,42,0.48);
+    }
+    @media (max-width:1120px){
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .controls{grid-template-columns:1fr 1fr 1fr}
+    }
+    @media (max-width:760px){
+      .header-inner{padding:14px}
+      .layout{padding:22px 14px 30px}
+      .stats{grid-template-columns:1fr}
+      .controls{grid-template-columns:1fr}
+      .timeline{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .actions{flex-direction:column;align-items:stretch}
+      .status-select{min-width:0}
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-badge">W</div>
+        <div class="shop-name" id="shopName">Boutique</div>
+      </div>
+      <nav class="tabs">
+        <a href="/vendeur/dashboard" class="tab">Produits</a>
+        <a href="/vendeur/orders" class="tab active">Commandes</a>
+        <a href="/vendeur/stats" class="tab">Statistiques</a>
+        <a href="/vendeur/themes" class="tab">Themes</a>
+      </nav>
+      <div class="header-actions">
+        <a id="viewShop" class="btn" href="#">Voir boutique</a>
+        <button class="btn btn-danger" id="logoutBtn">Deconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="title">
+      <div>
+        <h1>Pilotage commandes</h1>
+        <p>Filtres metier, suivi statut, relance client et facturation.</p>
+      </div>
+    </section>
+
+    <section class="stats">
+      <article class="stat">
+        <div class="k">Total commandes</div>
+        <div class="v" id="statTotal">0</div>
+      </article>
+      <article class="stat">
+        <div class="k">A traiter</div>
+        <div class="v" id="statTodo">0</div>
+      </article>
+      <article class="stat">
+        <div class="k">Livrees</div>
+        <div class="v" id="statDelivered">0</div>
+      </article>
+      <article class="stat">
+        <div class="k">Paiements payes</div>
+        <div class="v" id="statPaid">0</div>
+      </article>
+    </section>
+
+    <section>
+      <div class="controls">
+        <input id="searchInput" class="input" type="search" placeholder="Rechercher #commande, client, tel">
+        <select id="statusFilter" class="select">
+          <option value="all">Tous statuts</option>
+          <option value="overdue">En retard</option>
+          <option value="en_attente">En attente</option>
+          <option value="confirmee">Confirmee</option>
+          <option value="expediee">Expediee</option>
+          <option value="livree">Livree</option>
+          <option value="annulee">Annulee</option>
+        </select>
+        <select id="paymentFilter" class="select">
+          <option value="all">Tous paiements</option>
+          <option value="paid">Paye</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select id="sortFilter" class="select">
+          <option value="recent">Plus recentes</option>
+          <option value="oldest">Plus anciennes</option>
+          <option value="amount_desc">Montant desc</option>
+          <option value="amount_asc">Montant asc</option>
+        </select>
+        <button id="refreshBtn" class="btn">Actualiser</button>
+        <button id="exportBtn" class="btn">Exporter CSV</button>
+      </div>
+      <div class="quick-filters" id="quickFilters">
+        <button class="chip active" data-status="all">Toutes</button>
+        <button class="chip" data-status="overdue">En retard</button>
+        <button class="chip" data-status="en_attente">En attente</button>
+        <button class="chip" data-status="confirmee">Confirmees</button>
+        <button class="chip" data-status="expediee">Expediees</button>
+        <button class="chip" data-status="livree">Livrees</button>
+        <button class="chip" data-status="annulee">Annulees</button>
+      </div>
+    </section>
+
+    <section id="ordersContainer" class="orders">
+      <div class="empty">Chargement des commandes...</div>
+    </section>
+  </main>
+
+  <script src="auth-client.js"></script>
+  <script>
+    var apiFetch = window.authFetch || fetch;
+    var state = {
+      vendeurId: null,
+      vendeur: null,
+      orders: [],
+      filters: {
+        query: '',
+        status: 'all',
+        payment: 'all',
+        sort: 'recent'
+      }
+    };
+
+    var STATUS_LABELS = {
+      en_attente: 'En attente',
+      confirmee: 'Confirmee',
+      expediee: 'Expediee',
+      livree: 'Livree',
+      annulee: 'Annulee'
+    };
+    var STATUS_FLOW = ['en_attente', 'confirmee', 'expediee', 'livree'];
+    var STATUS_TRANSITIONS = {
+      en_attente: ['confirmee', 'annulee'],
+      confirmee: ['expediee', 'annulee'],
+      expediee: ['livree', 'annulee'],
+      livree: [],
+      annulee: []
+    };
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function normalizeStatus(status) {
+      var raw = String(status || '').toLowerCase();
+      if (raw === 'en_cours') return 'confirmee';
+      if (raw === 'expedie') return 'expediee';
+      if (raw === 'livre') return 'livree';
+      return STATUS_LABELS[raw] ? raw : 'en_attente';
+    }
+
+    function isOverdue(order) {
+      var status = normalizeStatus(order && order.statut);
+      if (status === 'livree' || status === 'annulee') return false;
+      var createdAt = new Date(order && order.dateCommande || 0).getTime();
+      if (!createdAt) return false;
+      var ageMs = Date.now() - createdAt;
+      return ageMs > 48 * 60 * 60 * 1000;
+    }
+
+    function paymentStatus(order) {
+      return String(order && order.payment && order.payment.status || 'pending').toLowerCase();
+    }
+
+    function statusBadge(order) {
+      var status = normalizeStatus(order.statut);
+      return '<span class="badge status-' + status + '">' + escapeHtml(STATUS_LABELS[status]) + '</span>';
+    }
+
+    function paymentBadge(order) {
+      var status = paymentStatus(order);
+      var labelMap = { paid: 'Paye', pending: 'Pending', failed: 'Failed', cancelled: 'Cancelled' };
+      var cls = 'pay-' + (status === 'failed' || status === 'cancelled' ? status : (status === 'paid' ? 'paid' : 'pending'));
+      var label = labelMap[status] || status;
+      return '<span class="badge ' + cls + '">' + escapeHtml(label) + '</span>';
+    }
+
+    function timelineHtml(order) {
+      var status = normalizeStatus(order.statut);
+      if (status === 'annulee') {
+        return '<div class="timeline"><div class="step done">Initiee</div><div class="step done">Traitee</div><div class="step current">Annulee</div><div class="step">Cloture</div></div>';
+      }
+      var currentIndex = STATUS_FLOW.indexOf(status);
+      return '<div class="timeline">' + STATUS_FLOW.map(function(step, index) {
+        var cls = 'step';
+        if (index < currentIndex) cls += ' done';
+        if (index === currentIndex) cls += ' current';
+        return '<div class="' + cls + '">' + escapeHtml(STATUS_LABELS[step]) + '</div>';
+      }).join('') + '</div>';
+    }
+
+    function allowedStatusOptions(currentStatus) {
+      var current = normalizeStatus(currentStatus);
+      var allowed = [current].concat(STATUS_TRANSITIONS[current] || []);
+      return ['en_attente', 'confirmee', 'expediee', 'livree', 'annulee'].map(function(step) {
+        var disabled = allowed.indexOf(step) === -1 ? ' disabled' : '';
+        var selected = step === current ? ' selected' : '';
+        return '<option value="' + step + '"' + selected + disabled + '>' + escapeHtml(STATUS_LABELS[step]) + '</option>';
+      }).join('');
+    }
+
+    function computeStats(rows) {
+      var total = rows.length;
+      var todo = rows.filter(function(order) {
+        var s = normalizeStatus(order.statut);
+        return s === 'en_attente' || s === 'confirmee' || s === 'expediee';
+      }).length;
+      var delivered = rows.filter(function(order) { return normalizeStatus(order.statut) === 'livree'; }).length;
+      var paid = rows.filter(function(order) { return paymentStatus(order) === 'paid'; }).length;
+      return { total: total, todo: todo, delivered: delivered, paid: paid };
+    }
+
+    function getFilteredOrders() {
+      var query = state.filters.query.trim().toLowerCase();
+      var status = state.filters.status;
+      var payment = state.filters.payment;
+      var sort = state.filters.sort;
+
+      var rows = state.orders.slice().filter(function(order) {
+        var statusOk = false;
+        if (status === 'all') {
+          statusOk = true;
+        } else if (status === 'overdue') {
+          statusOk = isOverdue(order);
+        } else {
+          statusOk = normalizeStatus(order.statut) === status;
+        }
+        var paymentOk = payment === 'all' || paymentStatus(order) === payment;
+        var haystack = [
+          order.id,
+          order.clientNom || '',
+          order.clientTel || ''
+        ].join(' ').toLowerCase();
+        var queryOk = query === '' || haystack.indexOf(query) !== -1;
+        return statusOk && paymentOk && queryOk;
+      });
+
+      rows.sort(function(a, b) {
+        var dateA = new Date(a.dateCommande || 0).getTime();
+        var dateB = new Date(b.dateCommande || 0).getTime();
+        if (sort === 'oldest') return dateA - dateB;
+        if (sort === 'amount_desc') return Number(b.total || 0) - Number(a.total || 0);
+        if (sort === 'amount_asc') return Number(a.total || 0) - Number(b.total || 0);
+        return dateB - dateA;
+      });
+      return rows;
+    }
+
+    function renderOrderCard(order) {
+      var safeClient = escapeHtml(order.clientNom || 'Client');
+      var safeTel = escapeHtml(order.clientTel || '');
+      var date = new Date(order.dateCommande || Date.now()).toLocaleString('fr-FR');
+      var overdue = isOverdue(order);
+      var items = Array.isArray(order.items) ? order.items : [];
+      var itemRows = items.map(function(item) {
+        var qty = Math.max(1, Number(item.quantity || 1));
+        var unit = Number(item.prix || 0);
+        var total = unit * qty;
+        return '<div class="item"><div>' + escapeHtml(item.nom || 'Produit') + ' x' + qty + '</div><div>' + total.toLocaleString('fr-FR') + ' FCFA</div></div>';
+      }).join('');
+
+      var badges = statusBadge(order) + paymentBadge(order);
+      if (overdue) {
+        badges += '<span class="badge badge-overdue">En retard</span>';
+      }
+
+      return '' +
+        '<article class="order">' +
+          '<div class="order-top">' +
+            '<div>' +
+              '<div class="order-id">Commande #' + escapeHtml(order.id) + '</div>' +
+              '<div class="order-meta">' +
+                '<span>' + safeClient + '</span>' +
+                (safeTel ? '<span>' + safeTel + '</span>' : '') +
+                '<span>' + escapeHtml(date) + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="badges">' + badges + '</div>' +
+          '</div>' +
+          timelineHtml(order) +
+          '<div class="items">' +
+            itemRows +
+            '<div class="total"><span>Total</span><span>' + Number(order.total || 0).toLocaleString('fr-FR') + ' FCFA</span></div>' +
+          '</div>' +
+          '<div class="actions">' +
+            '<select class="select status-select" data-action="status" data-id="' + escapeHtml(order.id) + '">' +
+              allowedStatusOptions(order.statut) +
+            '</select>' +
+            '<button class="btn btn-sm" data-action="contact" data-tel="' + safeTel + '"' + (safeTel ? '' : ' disabled') + '>Contacter</button>' +
+            '<button class="btn btn-sm" data-action="invoice" data-id="' + escapeHtml(order.id) + '">Facture</button>' +
+            '<button class="btn btn-sm" data-action="remind" data-id="' + escapeHtml(order.id) + '">Relancer</button>' +
+            '<button class="btn btn-danger btn-sm" data-action="delete" data-id="' + escapeHtml(order.id) + '">Supprimer</button>' +
+          '</div>' +
+        '</article>';
+    }
+
+    function render() {
+      var rows = getFilteredOrders();
+      var stats = computeStats(state.orders);
+      document.getElementById('statTotal').textContent = stats.total;
+      document.getElementById('statTodo').textContent = stats.todo;
+      document.getElementById('statDelivered').textContent = stats.delivered;
+      document.getElementById('statPaid').textContent = stats.paid;
+
+      var container = document.getElementById('ordersContainer');
+      if (!rows.length) {
+        container.innerHTML = '<div class="empty">Aucune commande pour ces filtres.</div>';
+        return;
+      }
+      container.innerHTML = rows.map(renderOrderCard).join('');
+    }
+
+    async function loadData() {
+      if (!state.vendeurId) return;
+      var vendorRes = await apiFetch('/api/vendeurs/' + state.vendeurId);
+      if (!vendorRes.ok) throw new Error('Impossible de charger le vendeur');
+      state.vendeur = await vendorRes.json();
+
+      document.getElementById('shopName').textContent = state.vendeur.boutique || 'Boutique';
+      document.getElementById('viewShop').href = '/' + state.vendeur.slug;
+
+      var ordersRes = await apiFetch('/api/orders/vendeur/' + state.vendeurId);
+      if (!ordersRes.ok) throw new Error('Impossible de charger les commandes');
+      state.orders = await ordersRes.json();
+      render();
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      var res = await apiFetch('/api/orders/' + orderId + '/status', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ statut: status })
+      });
+      var data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Mise a jour impossible');
+        await loadData();
+        return;
+      }
+      await loadData();
+    }
+
+    async function deleteOrder(orderId) {
+      if (!confirm('Supprimer cette commande ?')) return;
+      var res = await apiFetch('/api/orders/' + orderId, { method: 'DELETE' });
+      var data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Suppression impossible');
+        return;
+      }
+      await loadData();
+    }
+
+    async function sendReminder(orderId) {
+      var res = await apiFetch('/api/orders/' + orderId + '/remind', { method: 'POST' });
+      var data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Relance impossible');
+        return;
+      }
+      if (data.whatsappUrl) {
+        window.open(data.whatsappUrl, '_blank');
+      } else {
+        alert('Relance enregistree');
+      }
+    }
+
+    function openInvoice(orderId) {
+      var token = localStorage.getItem('vendeurToken') || '';
+      if (!token) return;
+      window.open('/api/orders/' + orderId + '/invoice.pdf?token=' + encodeURIComponent(token), '_blank');
+    }
+
+    function contactClient(phone) {
+      if (!phone) return;
+      var normalized = String(phone).replace(/[^\d]/g, '');
+      if (!normalized) return;
+      window.open('https://wa.me/' + normalized, '_blank');
+    }
+
+    async function downloadOrdersCsv() {
+      if (!state.vendeurId) return;
+      try {
+        var res = await apiFetch('/api/exports/orders.csv?vendeurId=' + encodeURIComponent(state.vendeurId));
+        if (!res.ok) {
+          alert('Export CSV impossible');
+          return;
+        }
+        var blob = await res.blob();
+        var filename = 'orders-' + state.vendeurId + '.csv';
+        var disposition = res.headers.get('content-disposition') || '';
+        var match = disposition.match(/filename=\"?([^\";]+)\"?/i);
+        if (match && match[1]) filename = match[1];
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error(error);
+        alert('Export CSV impossible');
+      }
+    }
+
+    function bindEvents() {
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('vendeurToken');
+        localStorage.removeItem('vendeurId');
+        localStorage.removeItem('vendeurNom');
+        localStorage.removeItem('vendeurBoutique');
+        window.location.href = '/vendeur';
+      });
+
+      document.getElementById('searchInput').addEventListener('input', function(event) {
+        state.filters.query = event.target.value || '';
+        render();
+      });
+      document.getElementById('statusFilter').addEventListener('change', function(event) {
+        state.filters.status = event.target.value;
+        var chips = document.querySelectorAll('.chip');
+        chips.forEach(function(chip) {
+          chip.classList.toggle('active', chip.getAttribute('data-status') === state.filters.status);
+        });
+        render();
+      });
+      document.getElementById('paymentFilter').addEventListener('change', function(event) {
+        state.filters.payment = event.target.value;
+        render();
+      });
+      document.getElementById('sortFilter').addEventListener('change', function(event) {
+        state.filters.sort = event.target.value;
+        render();
+      });
+      document.getElementById('refreshBtn').addEventListener('click', function() {
+        loadData().catch(function(error) {
+          console.error(error);
+          alert('Erreur de chargement');
+        });
+      });
+      var exportBtn = document.getElementById('exportBtn');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+          downloadOrdersCsv();
+        });
+      }
+
+      document.getElementById('quickFilters').addEventListener('click', function(event) {
+        var target = event.target;
+        if (!target || !target.classList.contains('chip')) return;
+        var status = target.getAttribute('data-status') || 'all';
+        state.filters.status = status;
+        document.getElementById('statusFilter').value = status;
+        document.querySelectorAll('.chip').forEach(function(chip) {
+          chip.classList.toggle('active', chip === target);
+        });
+        render();
+      });
+
+      document.getElementById('ordersContainer').addEventListener('click', function(event) {
+        var button = event.target.closest('button');
+        if (!button) return;
+        var action = button.getAttribute('data-action');
+        if (action === 'contact') {
+          contactClient(button.getAttribute('data-tel') || '');
+          return;
+        }
+        var id = Number(button.getAttribute('data-id') || 0);
+        if (!id) return;
+        if (action === 'invoice') openInvoice(id);
+        if (action === 'remind') sendReminder(id).catch(function(error) {
+          console.error(error);
+          alert('Erreur lors de la relance');
+        });
+        if (action === 'delete') deleteOrder(id).catch(function(error) {
+          console.error(error);
+          alert('Erreur lors de la suppression');
+        });
+      });
+
+      document.getElementById('ordersContainer').addEventListener('change', function(event) {
+        var select = event.target;
+        if (!select || select.getAttribute('data-action') !== 'status') return;
+        var id = Number(select.getAttribute('data-id') || 0);
+        if (!id) return;
+        updateOrderStatus(id, select.value).catch(function(error) {
+          console.error(error);
+          alert('Erreur de mise a jour');
+        });
+      });
+    }
+
+    (function init() {
+      state.vendeurId = localStorage.getItem('vendeurId');
+      if (!state.vendeurId) {
+        window.location.href = '/vendeur';
+        return;
+      }
+      bindEvents();
+      loadData().catch(function(error) {
+        console.error(error);
+        alert('Erreur lors du chargement des commandes');
+      });
+    })();
+  </script>
+</body>
+</html>

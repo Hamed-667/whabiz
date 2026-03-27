@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: whabiz
+    runtime: node
+    plan: free
+    buildCommand: npm --prefix backend install
+    startCommand: npm --prefix backend start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MYSQL_SSL
+        value: "1"
+      - key: MYSQL_SSL_REJECT_UNAUTHORIZED
+        value: "1"
+      - key: MYSQL_SOURCE_OF_TRUTH
+        value: "1"
+      - key: MYSQL_JSON_MIRROR_WRITES
+        value: "0"
+      - key: MYSQL_PERSIST_QUEUE_MAX_WAIT_MS
+        value: "15000"
+      - key: MYSQL_PERSIST_QUEUE_TIMEOUT_ALERT_INTERVAL_MS
+        value: "300000"
+      - key: STORAGE_PROVIDER
+        value: cloudinary

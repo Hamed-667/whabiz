@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personnalisation - WhaBiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --premium-green:      #0F9D58;
+      --premium-green-dark: #0B7A43;
+      --premium-gold:       #D4AF37;
+      --shadow-sm:          0 2px 8px rgba(0,0,0,.08);
+      --shadow-md:          0 4px 16px rgba(0,0,0,.12);
+      --shadow-lg:          0 8px 32px rgba(0,0,0,.16);
+      --radius-md:          12px;
+      --radius-lg:          16px;
+      --font-display:       'Outfit', sans-serif;
+      --font-body:          'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: #0a0e14;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 30%, rgba(15,157,88,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(212,175,55,0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .header {
+      background: rgba(10,14,20,.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--premium-green);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .shop-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .nav-tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.7);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+    }
+
+    .nav-tab.active {
+      background: var(--premium-green);
+      color: #fff;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all .2s;
+      border: none;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: var(--premium-green);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--premium-green-dark);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,.15);
+    }
+
+    .btn-danger {
+      background: #EF4444;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #DC2626;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: rgba(255,255,255,.7);
+    }
+
+    .section {
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .themes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .theme-card {
+      background: rgba(255,255,255,.03);
+      border: 2px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      cursor: pointer;
+      transition: all .3s;
+      position: relative;
+    }
+
+    .theme-card:hover {
+      border-color: var(--premium-green);
+      transform: translateY(-4px);
+    }
+
+    .theme-card.active {
+      border-color: var(--premium-green);
+      background: rgba(15,157,88,.1);
+    }
+
+    .theme-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--premium-green);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .theme-preview {
+      width: 100%;
+      height: 150px;
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .theme-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .theme-description {
+      font-size: 13px;
+      color: rgba(255,255,255,.6);
+    }
+
+    .save-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-lg);
+      padding: 24px 32px;
+    }
+
+    .save-text {
+      font-size: 16px;
+      color: rgba(255,255,255,.8);
+    }
+
+    @media (max-width: 768px) {
+      .header-inner {
+        flex-direction: column;
+      }
+
+      .themes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .save-section {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="vendeur-ui.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="logo">
+          <span class="logo-icon">W</span>
+          <span class="shop-name" id="shopName">Ma Boutique</span>
+        </div>
+        <nav class="nav-tabs">
+          <a href="/vendeur/dashboard" class="nav-tab">Produits</a>
+          <a href="/vendeur/orders" class="nav-tab">Commandes</a>
+          <a href="/vendeur/stats" class="nav-tab">Stats</a>
+          <a href="/vendeur/themes" class="nav-tab active">Themes</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <a href="#" class="btn btn-secondary" id="viewShop" target="_blank">Voir ma boutique</a>
+        <button class="btn btn-danger" onclick="logout()">Deconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="page-header">
+      <h1 class="page-title">Personnalisation de la boutique</h1>
+      <p class="page-subtitle">Choisissez un theme pour votre boutique</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Themes disponibles</h2>
+      <div class="themes-grid" id="themesGrid"></div>
+    </div>
+
+    <div class="save-section">
+      <span class="save-text">Les modifications sont appliquees immediatement</span>
+      <button class="btn btn-primary" onclick="previewTheme()">Previsualiser</button>
+    </div>
+
+  </div>
+
+  <script src="auth-client.js"></script>
+  <script>
+    var vendeurId = null;
+    var vendeurData = null;
+    var apiFetch = window.authFetch || fetch;
+    var selectedTheme = 'default';
+
+    var themes = [
+      {
+        id: 'default',
+        name: 'Emerald',
+        description: 'Theme par defaut',
+        primary: '#10B981',
+        secondary: '#F59E0B',
+        background: '#0f172a',
+        label: 'EM',
+        plan: 'starter'
+      },
+      {
+        id: 'light-modern',
+        name: 'Luxe minimal',
+        description: 'Theme clair moderne',
+        primary: '#111827',
+        secondary: '#D4AF37',
+        background: '#ffffff',
+        label: 'LM',
+        plan: 'starter'
+      },
+      {
+        id: 'dark-blue',
+        name: 'Saphir',
+        description: 'Theme sombre bleu elegant',
+        primary: '#3B82F6',
+        secondary: '#60A5FA',
+        background: '#0b1120',
+        label: 'SB',
+        plan: 'pro'
+      },
+      {
+        id: 'dark-purple',
+        name: 'Amethyste',
+        description: 'Theme sombre violet moderne',
+        primary: '#A855F7',
+        secondary: '#E879F9',
+        background: '#180828',
+        label: 'AP',
+        plan: 'pro'
+      },
+      {
+        id: 'dark-orange',
+        name: 'Bronze',
+        description: 'Theme sombre orange chaleureux',
+        primary: '#F97316',
+        secondary: '#FDBA74',
+        background: '#1c1917',
+        label: 'BZ',
+        plan: 'pro'
+      },
+      {
+        id: 'dark-red',
+        name: 'Rubis',
+        description: 'Theme sombre rouge puissant',
+        primary: '#F43F5E',
+        secondary: '#FDA4AF',
+        background: '#1c0508',
+        label: 'RB',
+        plan: 'pro'
+      },
+      {
+        id: 'dark-teal',
+        name: 'Ocean',
+        description: 'Theme sombre teal apaisant',
+        primary: '#14B8A6',
+        secondary: '#5EEAD4',
+        background: '#042f2e',
+        label: 'OC',
+        plan: 'pro'
+      },
+      {
+        id: 'light-blue',
+        name: 'Ciel',
+        description: 'Theme clair bleu professionnel',
+        primary: '#0284c7',
+        secondary: '#38bdf8',
+        background: '#f8fafc',
+        label: 'CL',
+        plan: 'pro'
+      },
+      {
+        id: 'business-gold',
+        name: 'Business Gold',
+        description: 'Theme business premium or',
+        primary: '#D4AF37',
+        secondary: '#FFFFFF',
+        background: '#000000',
+        label: 'BG',
+        plan: 'business'
+      },
+      {
+        id: 'business-midnight',
+        name: 'Business Midnight',
+        description: 'Theme business nuit profonde',
+        primary: '#6366f1',
+        secondary: '#a855f7',
+        background: '#020617',
+        label: 'BM',
+        plan: 'business'
+      }
+    ];
+
+    function checkAuth() {
+      vendeurId = localStorage.getItem('vendeurId');
+      var vendeurBoutique = localStorage.getItem('vendeurBoutique');
+
+      if (!vendeurId) {
+        window.location.href = '/vendeur';
+        return false;
+      }
+
+      document.getElementById('shopName').textContent = vendeurBoutique;
+      return true;
+    }
+
+    async function loadData() {
+      if (!checkAuth()) return;
+
+      try {
+        var vendeurRes = await apiFetch('/api/vendeurs/' + vendeurId);
+        vendeurData = await vendeurRes.json();
+        document.getElementById('viewShop').href = '/' + vendeurData.slug;
+
+        
+        var plan = vendeurData.plan || 'starter';
+        if (vendeurData.theme) {
+          selectedTheme = vendeurData.theme;
+        } else {
+          selectedTheme = plan === 'business' ? 'business-gold' : 'default';
+        }
+
+        displayThemes(true);
+
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors du chargement');
+      }
+    }
+
+    function displayThemes(syncStorage) {
+      var grid = document.getElementById('themesGrid');
+      grid.innerHTML = '';
+
+      var plan = (vendeurData && vendeurData.plan) ? vendeurData.plan : 'starter';
+      var allowedThemes = themes.filter(function(theme) {
+        if (plan === 'business') return true;
+        if (plan === 'pro') return theme.plan !== 'business';
+        return theme.plan === 'starter';
+      });
+
+      if (!allowedThemes.some(function(theme) { return theme.id === selectedTheme; })) {
+        selectedTheme = 'default';
+      }
+      if (!allowedThemes.some(function(theme) { return theme.id === selectedTheme; }) && allowedThemes.length > 0) {
+        selectedTheme = allowedThemes[0].id;
+      }
+
+      if (syncStorage && vendeurData && vendeurData.slug) {
+        if (selectedTheme === 'default') {
+          localStorage.removeItem('shopTheme_' + vendeurData.slug);
+        } else {
+          localStorage.setItem('shopTheme_' + vendeurData.slug, selectedTheme);
+        }
+      }
+
+      allowedThemes.forEach(function(theme) {
+        var card = document.createElement('div');
+        card.className = 'theme-card' + (theme.id === selectedTheme ? ' active' : '');
+        card.onclick = function() { selectTheme(theme.id); };
+
+        var isLight = theme.background === '#ffffff' || theme.background === '#f8fafc';
+        var previewStyle = 'background: linear-gradient(135deg, ' + theme.primary + ' 0%, ' + theme.secondary + ' 100%); color: ' + (isLight ? '#0f172a' : '#ffffff') + ';';
+
+        card.innerHTML = (theme.id === selectedTheme ? '<div class="theme-badge">Actif</div>' : '') + '<div class="theme-preview" style="' + previewStyle + '">' + theme.label + '</div><div class="theme-name">' + theme.name + '</div><div class="theme-description">' + theme.description + '</div>';
+
+        grid.appendChild(card);
+      });
+    }
+
+    async function selectTheme(themeId) {
+      selectedTheme = themeId;
+      displayThemes();
+
+      try {
+        var res = await apiFetch('/api/vendeurs/' + vendeurId, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme: themeId })
+        });
+
+        if (res.ok) {
+          if (themeId === 'default') {
+            localStorage.removeItem('shopTheme_' + vendeurData.slug);
+          } else {
+            localStorage.setItem('shopTheme_' + vendeurData.slug, themeId);
+          }
+          showNotification('Theme applique !');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la sauvegarde');
+      }
+    }
+
+    function previewTheme() {
+      window.open('/' + vendeurData.slug, '_blank');
+    }
+
+    function showNotification(message) {
+      var notification = document.createElement('div');
+      notification.style.cssText = 'position: fixed; top: 80px; right: 20px; background: rgba(15,157,88,.9); color: #fff; padding: 16px 24px; border-radius: 50px; font-weight: 600; z-index: 3000;';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(function() {
+        notification.remove();
+      }, 2000);
+    }
+
+    function logout() {
+      localStorage.removeItem('vendeurToken');
+      localStorage.removeItem('vendeurId');
+      localStorage.removeItem('vendeurNom');
+      localStorage.removeItem('vendeurBoutique');
+      window.location.href = '/vendeur';
+    }
+
+    loadData();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "name": "whabiz",
+  "version": "1.0.0",
+  "description": "WhaBiz - Plateforme e-commerce Burkina Faso",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "smoke": "node scripts/smoke-test.js",
+    "test:critical": "node scripts/critical-orders-payments-test.js",
+    "db:backup": "node scripts/backup-mysql-bundle.js",
+    "db:restore:last": "node scripts/restore-mysql-bundle.js --latest",
+    "db:restore:test": "node scripts/restore-mysql-bundle.js --latest --target-db whabiz_restore_test --drop-target --verify --drop-after-verify",
+    "db:clean-test": "node scripts/clean-test-data.js",
+    "db:clean-test:dry": "node scripts/clean-test-data.js --dry-run",
+    "preflight": "node scripts/preflight.js",
+    "admin:hash": "node scripts/generate-admin-hash.js",
+    "ops:clear": "node scripts/clear-ops-logs.js",
+    "ops:clear:dry": "node scripts/clear-ops-logs.js --dry-run",
+    "mysql:migrate": "node scripts/migrate-json-to-mysql.js",
+    "mysql:migrations": "node scripts/run-migrations.js",
+    "mysql:snapshot": "node scripts/export-mysql-snapshot.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.18.2",
+    "nodemailer": "^8.0.1",
+    "pdfkit": "^0.16.0",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

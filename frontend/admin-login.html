@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhaBiz Admin - Connexion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --premium-green: #0F9D58;
+      --premium-green-dark: #0B7A43;
+      --premium-gold: #D4AF37;
+      --bg: #0a0e14;
+      --card: rgba(255,255,255,.06);
+      --line: rgba(255,255,255,.14);
+      --text-soft: rgba(255,255,255,.72);
+      --error: #FCA5A5;
+      --ok: #86EFAC;
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-body);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(15,157,88,.18), transparent 45%),
+        radial-gradient(circle at 85% 75%, rgba(212,175,55,.14), transparent 42%),
+        var(--bg);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(460px, 100%);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.35);
+      padding: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--premium-green);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-soft);
+      margin-bottom: 22px;
+      font-size: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      color: rgba(255,255,255,.9);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(0,0,0,.25);
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      outline: none;
+      font: inherit;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .field input:focus {
+      border-color: rgba(15,157,88,.8);
+      box-shadow: 0 0 0 3px rgba(15,157,88,.22);
+    }
+
+    .message {
+      display: none;
+      border-radius: 10px;
+      padding: 11px 12px;
+      margin: 8px 0 12px;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .message.error {
+      display: block;
+      color: var(--error);
+      background: rgba(239,68,68,.12);
+      border-color: rgba(239,68,68,.35);
+    }
+
+    .message.ok {
+      display: block;
+      color: var(--ok);
+      background: rgba(34,197,94,.12);
+      border-color: rgba(34,197,94,.35);
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      padding: 11px 18px;
+      transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+    .btn-primary {
+      background: var(--premium-green);
+      color: #fff;
+      min-width: 170px;
+    }
+
+    .btn-primary:hover {
+      background: var(--premium-green-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(15,157,88,.28);
+    }
+
+    .btn-primary:disabled {
+      opacity: .7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-link {
+      color: var(--text-soft);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .btn-link:hover {
+      color: #fff;
+    }
+
+    .meta {
+      margin-top: 18px;
+      font-size: 12px;
+      color: rgba(255,255,255,.55);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <span class="brand-icon">W</span>
+      <strong>WhaBiz Admin</strong>
+    </div>
+    <h1>Connexion administrateur</h1>
+    <p class="subtitle">Session securisee via cookie HttpOnly. Aucun token stocke dans le navigateur.</p>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="email">Email admin</label>
+        <input id="email" name="email" type="email" autocomplete="username" required placeholder="admin@whabiz.local">
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Votre mot de passe">
+      </div>
+
+      <div id="messageBox" class="message" role="alert"></div>
+
+      <div class="actions">
+        <button id="submitBtn" class="btn btn-primary" type="submit">Se connecter</button>
+        <a class="btn-link" href="/">Retour accueil</a>
+      </div>
+    </form>
+
+    <p class="meta">Astuce: utilise ton email/mot de passe admin defines dans <code>backend/.env</code>.</p>
+  </main>
+
+  <script>
+    function parseJsonSafe(res) {
+      return res.json().catch(function () { return null; });
+    }
+
+    function showMessage(text, kind) {
+      var box = document.getElementById('messageBox');
+      box.className = 'message ' + (kind || 'error');
+      box.textContent = String(text || '');
+    }
+
+    function clearMessage() {
+      var box = document.getElementById('messageBox');
+      box.className = 'message';
+      box.textContent = '';
+    }
+
+    function getNextPath() {
+      var params = new URLSearchParams(window.location.search || '');
+      var next = String(params.get('next') || '/admin.html').trim();
+      if (!next.startsWith('/')) return '/admin.html';
+      if (next.startsWith('//')) return '/admin.html';
+      if (next.includes('admin-login.html')) return '/admin.html';
+      return next || '/admin.html';
+    }
+
+    function showReasonHint() {
+      var params = new URLSearchParams(window.location.search || '');
+      var reason = String(params.get('reason') || '').toLowerCase();
+      if (reason === 'expired' || reason === 'required') {
+        showMessage('Session admin expiree. Connecte-toi pour continuer.', 'error');
+      } else if (reason === 'logout') {
+        showMessage('Deconnexion reussie.', 'ok');
+      }
+    }
+
+    async function checkExistingSession() {
+      try {
+        var res = await fetch('/api/auth/admin/session', {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!res.ok) return false;
+        window.location.replace(getNextPath());
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    async function onSubmit(event) {
+      event.preventDefault();
+      clearMessage();
+
+      var submitBtn = document.getElementById('submitBtn');
+      var email = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showMessage('Email et mot de passe requis.', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Connexion...';
+
+      try {
+        var res = await fetch('/api/auth/admin/login', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ email: email, password: password })
+        });
+
+        var data = await parseJsonSafe(res) || {};
+        if (!res.ok || !data.success) {
+          showMessage(data.error || 'Connexion admin refusee.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Se connecter';
+          return;
+        }
+
+        window.location.replace(getNextPath());
+      } catch (error) {
+        showMessage('Erreur reseau. Reessaie.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Se connecter';
+      }
+    }
+
+    (async function initLogin() {
+      document.getElementById('loginForm').addEventListener('submit', onSubmit);
+      showReasonHint();
+      var redirected = await checkExistingSession();
+      if (!redirected) {
+        document.getElementById('email').focus();
+      }
+    })();
+  </script>
+</body>
+</html>

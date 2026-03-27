@@ -1,3 +1,7 @@
 node_modules/
 .env
 *.log
+backend/backups/
+backend/data/
+backend/uploads/
+frontend/uploads/

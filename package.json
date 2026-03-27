@@ -1,18 +1,27 @@
 {
-  "name": "Faye",
+  "name": "whabiz-workspace",
+  "private": true,
   "version": "1.0.0",
-  "description": "Application e-commerce WhatsApp",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "npm --prefix backend run start",
+    "dev": "npm --prefix backend run dev",
+    "test": "npm --prefix backend run smoke",
+    "test:critical": "npm --prefix backend run test:critical",
+    "test:ci": "npm run test && npm run test:critical",
+    "db:backup": "npm --prefix backend run db:backup",
+    "db:restore:last": "npm --prefix backend run db:restore:last",
+    "db:restore:test": "npm --prefix backend run db:restore:test",
+    "db:clean-test": "npm --prefix backend run db:clean-test",
+    "db:clean-test:dry": "npm --prefix backend run db:clean-test:dry",
+    "db:migrate": "npm --prefix backend run mysql:migrate",
+    "db:migrations": "npm --prefix backend run mysql:migrations",
+    "db:snapshot": "npm --prefix backend run mysql:snapshot",
+    "preflight": "npm --prefix backend run preflight",
+    "admin:hash": "npm --prefix backend run admin:hash",
+    "perf": "node scripts/run-perf.js"
   },
-  "keywords": ["ecommerce", "whatsapp"],
-  "author": "Ton Nom",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.18.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+  "devDependencies": {
+    "@lhci/cli": "^0.15.1",
+    "cross-env": "^10.1.0"
   }
 }

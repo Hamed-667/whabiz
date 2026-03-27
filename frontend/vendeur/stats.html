@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhaBiz - Statistiques</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="vendeur-ui.css">
+  <style>
+    :root{
+      --bg:#0a101b;
+      --panel:#131d2d;
+      --line:#26354f;
+      --text:#f5f7ff;
+      --muted:#9badc8;
+      --brand:#29a36a;
+      --violet:#9f7cff;
+      --blue:#5aa0ff;
+      --amber:#f5b43b;
+      --danger:#e15d70;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'DM Sans',sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(920px 480px at 0% 0%,rgba(41,163,106,0.20),transparent 60%),
+        radial-gradient(900px 500px at 100% 0%,rgba(90,160,255,0.20),transparent 60%),
+        var(--bg);
+      min-height:100vh;
+    }
+    .header{
+      position:sticky;
+      top:0;
+      z-index:20;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      backdrop-filter:blur(10px);
+      background:rgba(10,16,27,0.86);
+    }
+    .header-inner{
+      max-width:1260px;
+      margin:0 auto;
+      padding:16px 22px;
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .brand-badge{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      font-family:'Outfit',sans-serif;
+      font-weight:800;
+      font-size:18px;
+      color:#04150d;
+      background:linear-gradient(135deg,#2ecf83,#c7ec67);
+      box-shadow:0 8px 24px rgba(46,207,131,0.35);
+    }
+    .shop-name{
+      font-family:'Outfit',sans-serif;
+      font-size:20px;
+      font-weight:700;
+    }
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .tab{
+      text-decoration:none;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:700;
+      transition:all 0.2s ease;
+    }
+    .tab:hover{color:var(--text);border-color:rgba(255,255,255,0.26)}
+    .tab.active{
+      color:#092014;
+      border-color:transparent;
+      background:linear-gradient(135deg,#2ecf83,#c7ec67);
+    }
+    .header-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:10px;
+      background:rgba(255,255,255,0.05);
+      color:var(--text);
+      font-weight:700;
+      cursor:pointer;
+      padding:10px 14px;
+      font-size:13px;
+    }
+    .btn:hover{background:rgba(255,255,255,0.10)}
+    .btn-danger{
+      background:rgba(225,93,112,0.14);
+      border-color:rgba(225,93,112,0.38);
+      color:#ffc8d1;
+    }
+    .layout{
+      max-width:1260px;
+      margin:0 auto;
+      padding:28px 22px 36px;
+      display:grid;
+      gap:14px;
+    }
+    .title{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:end;
+    }
+    .title h1{
+      margin:0;
+      font-family:'Outfit',sans-serif;
+      font-size:32px;
+      line-height:1.05;
+    }
+    .title p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .period{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .period-btn{
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:999px;
+      background:rgba(255,255,255,0.04);
+      color:var(--muted);
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:800;
+      cursor:pointer;
+      letter-spacing:0.03em;
+    }
+    .period-btn.active{
+      border-color:transparent;
+      color:#081f14;
+      background:linear-gradient(135deg,#3ad78d,#d2f283);
+    }
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(6,minmax(0,1fr));
+      gap:10px;
+    }
+    .kpi{
+      background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:14px;
+      padding:14px;
+    }
+    .kpi .label{
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.07em;
+      margin-bottom:4px;
+    }
+    .kpi .value{
+      font-family:'Outfit',sans-serif;
+      font-size:24px;
+      font-weight:800;
+      line-height:1.1;
+    }
+    .kpi .hint{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .panel{
+      background:rgba(19,29,45,0.82);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:16px;
+      padding:16px;
+    }
+    .panel h2{
+      margin:0 0 12px;
+      font-family:'Outfit',sans-serif;
+      font-size:20px;
+    }
+    .chart-wrap{
+      height:320px;
+    }
+    .grid-2{
+      display:grid;
+      grid-template-columns:1.2fr 1fr;
+      gap:12px;
+    }
+    .list{
+      display:grid;
+      gap:8px;
+    }
+    .item{
+      border:1px solid rgba(255,255,255,0.09);
+      border-radius:12px;
+      background:rgba(255,255,255,0.03);
+      padding:10px 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+    }
+    .item .name{
+      font-weight:700;
+      font-size:14px;
+    }
+    .item .meta{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:2px;
+    }
+    .item .value{
+      font-family:'Outfit',sans-serif;
+      font-weight:700;
+      color:#c8e7ff;
+    }
+    .rank{
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      font-size:12px;
+      font-weight:800;
+      background:rgba(255,255,255,0.12);
+      color:#fff;
+      flex:0 0 auto;
+    }
+    .rank-1{background:rgba(245,180,59,0.30);color:#ffeec7}
+    .rank-2{background:rgba(90,160,255,0.30);color:#d5e8ff}
+    .rank-3{background:rgba(159,124,255,0.30);color:#e7dcff}
+    .alert-item{
+      border-left:3px solid var(--amber);
+      background:rgba(245,180,59,0.10);
+    }
+    .checklist .item{
+      justify-content:flex-start;
+      gap:10px;
+    }
+    .check{
+      width:18px;
+      height:18px;
+      border-radius:5px;
+      border:1px solid rgba(255,255,255,0.22);
+      background:rgba(255,255,255,0.04);
+      display:grid;
+      place-items:center;
+      font-size:12px;
+    }
+    .check.done{
+      border-color:rgba(41,163,106,0.42);
+      background:rgba(41,163,106,0.18);
+      color:#bff5d7;
+    }
+    .empty{
+      border:1px dashed rgba(255,255,255,0.24);
+      border-radius:14px;
+      padding:28px 16px;
+      text-align:center;
+      color:var(--muted);
+      background:rgba(19,29,45,0.48);
+      font-size:14px;
+    }
+    @media (max-width:1150px){
+      .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .grid-2{grid-template-columns:1fr}
+    }
+    @media (max-width:760px){
+      .layout{padding:22px 14px 30px}
+      .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .chart-wrap{height:260px}
+    }
+    @media (max-width:520px){
+      .kpis{grid-template-columns:1fr}
+      .period{width:100%}
+      .period-btn{flex:1}
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-badge">W</div>
+        <div class="shop-name" id="shopName">Boutique</div>
+      </div>
+      <nav class="tabs">
+        <a href="/vendeur/dashboard" class="tab">Produits</a>
+        <a href="/vendeur/orders" class="tab">Commandes</a>
+        <a href="/vendeur/stats" class="tab active">Statistiques</a>
+        <a href="/vendeur/themes" class="tab">Themes</a>
+      </nav>
+      <div class="header-actions">
+        <a id="viewShop" class="btn" href="#">Voir boutique</a>
+        <button class="btn btn-danger" id="logoutBtn">Deconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="title">
+      <div>
+        <h1>KPI et performance</h1>
+        <p>Mesure revenu, conversion, charge commandes et stock critique.</p>
+      </div>
+      <div class="period" id="periodButtons">
+        <button class="period-btn active" data-days="7">7 jours</button>
+        <button class="period-btn" data-days="30">30 jours</button>
+        <button class="period-btn" data-days="90">90 jours</button>
+      </div>
+    </section>
+
+    <section class="kpis">
+      <article class="kpi">
+        <div class="label">Revenu livre</div>
+        <div class="value" id="kpiRevenueDelivered">0 FCFA</div>
+        <div class="hint">Chiffre sur commandes livrees</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Revenu paye</div>
+        <div class="value" id="kpiRevenuePaid">0 FCFA</div>
+        <div class="hint">Encaissement confirme</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Commandes</div>
+        <div class="value" id="kpiOrders">0</div>
+        <div class="hint">Volume total</div>
+      </article>
+      <article class="kpi">
+        <div class="label">A traiter</div>
+        <div class="value" id="kpiAwaiting">0</div>
+        <div class="hint">En attente, confirmee, expediee</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Panier moyen</div>
+        <div class="value" id="kpiBasket">0 FCFA</div>
+        <div class="hint">Montant moyen commande</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Checkout -> Paye</div>
+        <div class="value" id="kpiCheckoutToPaid">0%</div>
+        <div class="hint">Taux conversion paiement</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Evolution ventes (livrees)</h2>
+      <div class="chart-wrap">
+        <canvas id="salesChart"></canvas>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <article class="panel">
+        <h2>Top produits</h2>
+        <div class="list" id="topProductsList">
+          <div class="empty">Aucune vente sur la periode.</div>
+        </div>
+      </article>
+      <article class="panel">
+        <h2>Alertes stock</h2>
+        <div class="list" id="stockAlertsList">
+          <div class="empty">Aucune alerte stock.</div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel checklist">
+      <h2>Checklist onboarding</h2>
+      <div class="list" id="checklistList">
+        <div class="empty">Chargement de la checklist...</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="auth-client.js"></script>
+  <script>
+    var apiFetch = window.authFetch || fetch;
+    var state = {
+      vendeurId: null,
+      vendeur: null,
+      periodDays: 7,
+      dashboard: null,
+      checklist: null,
+      chart: null
+    };
+
+    function formatCurrency(value) {
+      return Number(value || 0).toLocaleString('fr-FR') + ' FCFA';
+    }
+
+    function formatPercent(value) {
+      return (Number(value || 0) * 100).toFixed(1) + '%';
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    async function loadData() {
+      if (!state.vendeurId) return;
+      var vendorRes = await apiFetch('/api/vendeurs/' + state.vendeurId);
+      if (!vendorRes.ok) throw new Error('Impossible de charger le vendeur');
+      state.vendeur = await vendorRes.json();
+
+      document.getElementById('shopName').textContent = state.vendeur.boutique || 'Boutique';
+      document.getElementById('viewShop').href = '/' + state.vendeur.slug;
+
+      var dashRes = await apiFetch('/api/vendeurs/' + state.vendeurId + '/dashboard?periodDays=' + state.periodDays);
+      if (!dashRes.ok) throw new Error('Impossible de charger le dashboard');
+      var payload = await dashRes.json();
+      state.dashboard = payload.dashboard || null;
+      state.checklist = payload.checklist || null;
+
+      renderKpis();
+      renderChart();
+      renderTopProducts();
+      renderStockAlerts();
+      renderChecklist();
+    }
+
+    function renderKpis() {
+      var kpis = state.dashboard && state.dashboard.kpis || {};
+      var conversion = state.dashboard && state.dashboard.conversion || {};
+      document.getElementById('kpiRevenueDelivered').textContent = formatCurrency(kpis.revenueDelivered || 0);
+      document.getElementById('kpiRevenuePaid').textContent = formatCurrency(kpis.revenuePaid || 0);
+      document.getElementById('kpiOrders').textContent = Number(kpis.orders || 0).toLocaleString('fr-FR');
+      document.getElementById('kpiAwaiting').textContent = Number(kpis.awaitingActionOrders || 0).toLocaleString('fr-FR');
+      document.getElementById('kpiBasket').textContent = formatCurrency(kpis.avgBasket || 0);
+      document.getElementById('kpiCheckoutToPaid').textContent = formatPercent(conversion.checkout_to_paid || 0);
+    }
+
+    function renderChart() {
+      var series = state.dashboard && state.dashboard.salesSeries || [];
+      var labels = series.map(function(point) { return point.date; });
+      var amounts = series.map(function(point) { return Number(point.amount || 0); });
+      var orders = series.map(function(point) { return Number(point.orders || 0); });
+      var ctx = document.getElementById('salesChart').getContext('2d');
+
+      if (state.chart) {
+        state.chart.destroy();
+      }
+
+      state.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Ventes (FCFA)',
+              data: amounts,
+              borderColor: '#34c987',
+              backgroundColor: 'rgba(52,201,135,0.17)',
+              fill: true,
+              tension: 0.32,
+              pointRadius: 2.5
+            },
+            {
+              label: 'Commandes livrees',
+              data: orders,
+              borderColor: '#72a7ff',
+              backgroundColor: 'rgba(114,167,255,0.18)',
+              fill: false,
+              tension: 0.28,
+              pointRadius: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#dae4fb',
+                boxWidth: 12
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#90a2c3' },
+              grid: { color: 'rgba(255,255,255,0.08)' }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#90a2c3' },
+              grid: { color: 'rgba(255,255,255,0.08)' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTopProducts() {
+      var top = state.dashboard && state.dashboard.topProducts || [];
+      var container = document.getElementById('topProductsList');
+      if (!top.length) {
+        container.innerHTML = '<div class="empty">Aucune vente sur la periode.</div>';
+        return;
+      }
+      container.innerHTML = top.slice(0, 8).map(function(item, index) {
+        return '' +
+          '<div class="item">' +
+            '<div style="display:flex;align-items:center;gap:10px">' +
+              '<span class="rank rank-' + (index + 1) + '">' + (index + 1) + '</span>' +
+              '<div>' +
+                '<div class="name">' + escapeHtml(item.nom || 'Produit') + '</div>' +
+                '<div class="meta">' + Number(item.quantity || 0).toLocaleString('fr-FR') + ' ventes | ' + Number(item.orders || 0).toLocaleString('fr-FR') + ' commandes</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="value">' + formatCurrency(item.revenue || 0) + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function renderStockAlerts() {
+      var alerts = state.dashboard && state.dashboard.stockAlerts || [];
+      var container = document.getElementById('stockAlertsList');
+      if (!alerts.length) {
+        container.innerHTML = '<div class="empty">Aucune alerte stock.</div>';
+        return;
+      }
+      container.innerHTML = alerts.map(function(item) {
+        var label = item.nom || 'Produit';
+        if (item.variant) {
+          label += ' / ' + item.variant;
+        }
+        return '' +
+          '<div class="item alert-item">' +
+            '<div>' +
+              '<div class="name">' + escapeHtml(label) + '</div>' +
+              '<div class="meta">Seuil: ' + Number(item.threshold || 0) + '</div>' +
+            '</div>' +
+            '<div class="value" style="color:#ffe3a5">' + Number(item.stock || 0) + ' restants</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function renderChecklist() {
+      var checklist = state.checklist || {};
+      var steps = checklist.steps || [];
+      var container = document.getElementById('checklistList');
+      if (!steps.length) {
+        container.innerHTML = '<div class="empty">Checklist indisponible.</div>';
+        return;
+      }
+      container.innerHTML = steps.map(function(step) {
+        return '' +
+          '<div class="item">' +
+            '<div class="check ' + (step.done ? 'done' : '') + '">' + (step.done ? '&#10003;' : '') + '</div>' +
+            '<div>' +
+              '<div class="name">' + escapeHtml(step.label || '') + '</div>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function bindEvents() {
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('vendeurToken');
+        localStorage.removeItem('vendeurId');
+        localStorage.removeItem('vendeurNom');
+        localStorage.removeItem('vendeurBoutique');
+        window.location.href = '/vendeur';
+      });
+
+      document.getElementById('periodButtons').addEventListener('click', function(event) {
+        var button = event.target.closest('button');
+        if (!button) return;
+        var days = Number(button.getAttribute('data-days') || 0);
+        if (!days || state.periodDays === days) return;
+        state.periodDays = days;
+        document.querySelectorAll('.period-btn').forEach(function(node) {
+          node.classList.toggle('active', node === button);
+        });
+        loadData().catch(function(error) {
+          console.error(error);
+          alert('Erreur de chargement');
+        });
+      });
+    }
+
+    (function init() {
+      state.vendeurId = localStorage.getItem('vendeurId');
+      if (!state.vendeurId) {
+        window.location.href = '/vendeur';
+        return;
+      }
+      bindEvents();
+      loadData().catch(function(error) {
+        console.error(error);
+        alert('Erreur lors du chargement des statistiques');
+      });
+    })();
+  </script>
+</body>
+</html>
