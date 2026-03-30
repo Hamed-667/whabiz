@@ -19,7 +19,8 @@
     "ops:clear:dry": "node scripts/clear-ops-logs.js --dry-run",
     "mysql:migrate": "node scripts/migrate-json-to-mysql.js",
     "mysql:migrations": "node scripts/run-migrations.js",
-    "mysql:snapshot": "node scripts/export-mysql-snapshot.js"
+    "mysql:snapshot": "node scripts/export-mysql-snapshot.js",
+    "pwa:icons": "node create-icons.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

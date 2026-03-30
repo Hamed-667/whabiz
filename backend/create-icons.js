@@ -1,34 +1,64 @@
-
 const fs = require('fs');
 const path = require('path');
-
-
-const iconsDir = path.join(__dirname, 'public', 'icons');
-if (!fs.existsSync(iconsDir)) {
-  fs.mkdirSync(iconsDir, { recursive: true });
-}
-
+const sharp = require('sharp');
 
 const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+const iconsDir = path.join(__dirname, '..', 'frontend', 'icons');
 
+function ensureDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+}
 
-const createSVG = (size) => `
-<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="${size}" height="${size}" fill="#0F9D58" rx="${size * 0.2}"/>
-  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="${size * 0.6}" font-weight="900" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">W</text>
+function createSvg(size) {
+  const radius = Math.round(size * 0.22);
+  const accent = Math.round(size * 0.16);
+  const fontSize = Math.round(size * 0.46);
+
+  return `
+<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="${size}" y2="${size}" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F9D58"/>
+      <stop offset="1" stop-color="#0B7A43"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="${size * 0.1}" y1="${size * 0.1}" x2="${size * 0.9}" y2="${size * 0.9}" gradientUnits="userSpaceOnUse">
+      <stop stop-color="rgba(255,255,255,0.28)"/>
+      <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+  <rect width="${size}" height="${size}" rx="${radius}" fill="url(#bg)"/>
+  <path d="M ${size * 0.18} ${size * 0.24} C ${size * 0.32} ${size * 0.1}, ${size * 0.58} ${size * 0.08}, ${size * 0.8} ${size * 0.18}" stroke="rgba(255,255,255,0.22)" stroke-width="${Math.max(4, Math.round(size * 0.04))}" stroke-linecap="round"/>
+  <circle cx="${size * 0.78}" cy="${size * 0.24}" r="${accent}" fill="#D4AF37"/>
+  <text x="50%" y="56%" text-anchor="middle" font-family="Outfit, Arial, sans-serif" font-size="${fontSize}" font-weight="800" fill="#FFFFFF">W</text>
 </svg>
-`;
+`.trim();
+}
 
-console.log('🎨 Création des icônes PWA...\n');
+async function buildIcon(size) {
+  const svgContent = createSvg(size);
+  const svgPath = path.join(iconsDir, `icon-${size}.svg`);
+  const pngPath = path.join(iconsDir, `icon-${size}.png`);
+  const svgBuffer = Buffer.from(svgContent);
 
-sizes.forEach(size => {
-  const svgContent = createSVG(size);
-  const filename = `icon-${size}.svg`;
-  const filepath = path.join(iconsDir, filename);
-  
-  fs.writeFileSync(filepath, svgContent);
-  console.log(`✅ Créé: icons/${filename}`);
+  fs.writeFileSync(svgPath, svgContent, 'utf8');
+  await sharp(svgBuffer).png().toFile(pngPath);
+}
+
+async function main() {
+  ensureDir(iconsDir);
+  console.log('[pwa] generating icons in frontend/icons');
+
+  for (const size of sizes) {
+    await buildIcon(size);
+    console.log(`[pwa] icon-${size}.svg and icon-${size}.png`);
+  }
+
+  console.log('[pwa] icons generated successfully');
+}
+
+main().catch((error) => {
+  console.error('[pwa] icon generation failed:', error && error.message ? error.message : error);
+  process.exitCode = 1;
 });
-
-console.log('\n✨ Icônes créées avec succès !');
-console.log('✅ Les icônes SVG fonctionnent directement dans les navigateurs modernes.');

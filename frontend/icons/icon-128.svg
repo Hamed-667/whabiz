@@ -1,5 +1,16 @@
-
-<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
-  <rect width="128" height="128" fill="#0F9D58" rx="25.6"/>
-  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="76.8" font-weight="900" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">W</text>
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F9D58"/>
+      <stop offset="1" stop-color="#0B7A43"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="12.8" y1="12.8" x2="115.2" y2="115.2" gradientUnits="userSpaceOnUse">
+      <stop stop-color="rgba(255,255,255,0.28)"/>
+      <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <path d="M 23.04 30.72 C 40.96 12.8, 74.24 10.24, 102.4 23.04" stroke="rgba(255,255,255,0.22)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="99.84" cy="30.72" r="20" fill="#D4AF37"/>
+  <text x="50%" y="56%" text-anchor="middle" font-family="Outfit, Arial, sans-serif" font-size="59" font-weight="800" fill="#FFFFFF">W</text>
 </svg>

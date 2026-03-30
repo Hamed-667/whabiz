@@ -1,5 +1,16 @@
-
-<svg width="384" height="384" xmlns="http://www.w3.org/2000/svg">
-  <rect width="384" height="384" fill="#0F9D58" rx="76.80000000000001"/>
-  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="230.39999999999998" font-weight="900" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">W</text>
+<svg width="384" height="384" viewBox="0 0 384 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="384" y2="384" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F9D58"/>
+      <stop offset="1" stop-color="#0B7A43"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="38.400000000000006" y1="38.400000000000006" x2="345.6" y2="345.6" gradientUnits="userSpaceOnUse">
+      <stop stop-color="rgba(255,255,255,0.28)"/>
+      <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+  <rect width="384" height="384" rx="84" fill="url(#bg)"/>
+  <path d="M 69.12 92.16 C 122.88 38.400000000000006, 222.71999999999997 30.72, 307.20000000000005 69.12" stroke="rgba(255,255,255,0.22)" stroke-width="15" stroke-linecap="round"/>
+  <circle cx="299.52" cy="92.16" r="61" fill="#D4AF37"/>
+  <text x="50%" y="56%" text-anchor="middle" font-family="Outfit, Arial, sans-serif" font-size="177" font-weight="800" fill="#FFFFFF">W</text>
 </svg>
