@@ -32,6 +32,8 @@
     }
   ];
 
+  var BADGE_REFRESH_INTERVAL_MS = 60000;
+
   function normalizeText(value) {
     return String(value || '')
       .normalize('NFD')
@@ -44,6 +46,59 @@
     if (!target) return false;
     target.click();
     return true;
+  }
+
+  function formatBadgeCount(value) {
+    var count = Math.max(0, Number(value || 0));
+    if (!count) return '';
+    if (count > 99) return '99+';
+    return String(count);
+  }
+
+  function setNavBadge(href, count, tone) {
+    var item = document.querySelector('.wb-mobile-nav__item[href="' + href + '"]');
+    if (!item) return;
+
+    var existing = item.querySelector('.wb-mobile-nav__badge');
+    var text = formatBadgeCount(count);
+
+    if (!text) {
+      if (existing) existing.remove();
+      item.classList.remove('has-badge');
+      return;
+    }
+
+    if (!existing) {
+      existing = document.createElement('span');
+      existing.className = 'wb-mobile-nav__badge';
+      item.appendChild(existing);
+    }
+
+    existing.className = 'wb-mobile-nav__badge' + (tone ? ' wb-mobile-nav__badge--' + tone : '');
+    existing.textContent = text;
+    item.classList.add('has-badge');
+  }
+
+  async function refreshBusinessBadges() {
+    var vendeurId = localStorage.getItem('vendeurId');
+    var apiFetch = window.authFetch || window.fetch;
+    if (!vendeurId || typeof apiFetch !== 'function') return;
+
+    try {
+      var response = await apiFetch('/api/vendeurs/' + encodeURIComponent(vendeurId) + '/dashboard?periodDays=7');
+      if (!response.ok) return;
+
+      var payload = await response.json();
+      var dashboard = payload && payload.dashboard ? payload.dashboard : {};
+      var kpis = dashboard.kpis || {};
+      var stockAlerts = Array.isArray(dashboard.stockAlerts) ? dashboard.stockAlerts : [];
+
+      setNavBadge('/vendeur/orders', Number(kpis.awaitingActionOrders || 0), 'success');
+      setNavBadge('/vendeur/stats', stockAlerts.length, 'warning');
+    } catch (error) {
+      setNavBadge('/vendeur/orders', 0);
+      setNavBadge('/vendeur/stats', 0);
+    }
   }
 
   function showQuickToast(message, tone) {
@@ -323,7 +378,7 @@
       '<div class="wb-quick-actions__sheet" role="dialog" aria-label="Actions rapides vendeur">',
       '<div class="wb-quick-actions__sheet-header">',
       '<div><strong>Actions rapides</strong><span>Les gestes utiles sans quitter la page</span></div>',
-      '<button type="button" class="wb-quick-actions__close" aria-label="Fermer">×</button>',
+      '<button type="button" class="wb-quick-actions__close" aria-label="Fermer">x</button>',
       '</div>',
       '<div class="wb-quick-actions__grid"></div>',
       '</div>'
@@ -391,15 +446,31 @@
     document.body.appendChild(wrapper);
   }
 
+  function initBusinessBadges() {
+    refreshBusinessBadges();
+
+    window.setInterval(refreshBusinessBadges, BADGE_REFRESH_INTERVAL_MS);
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        refreshBusinessBadges();
+      }
+    });
+
+    window.addEventListener('focus', refreshBusinessBadges);
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
       buildNav();
       buildHeaderMenu();
       buildQuickActions();
+      initBusinessBadges();
     }, { once: true });
   } else {
     buildNav();
     buildHeaderMenu();
     buildQuickActions();
+    initBusinessBadges();
   }
 })();

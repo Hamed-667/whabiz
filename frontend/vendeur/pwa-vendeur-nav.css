@@ -59,6 +59,7 @@
   }
 
   .wb-mobile-nav__item {
+    position: relative;
     min-width: 0;
     display: grid;
     justify-items: center;
@@ -100,6 +101,34 @@
     white-space: nowrap;
     font: 700 11px/1 "DM Sans", sans-serif;
     letter-spacing: 0.02em;
+  }
+
+  .wb-mobile-nav__badge {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #0f9d58;
+    color: #04150d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: 800 10px/1 "DM Sans", sans-serif;
+    box-shadow: 0 6px 14px rgba(15, 157, 88, 0.3);
+  }
+
+  .wb-mobile-nav__badge--warning {
+    background: #f5b43b;
+    color: #221400;
+    box-shadow: 0 6px 14px rgba(245, 180, 59, 0.28);
+  }
+
+  .wb-mobile-nav__badge--success {
+    background: #34d399;
+    color: #032316;
   }
 
   .header-right,
@@ -402,6 +431,15 @@
   .wb-mobile-nav__label {
     font-size: 10px;
     letter-spacing: 0;
+  }
+
+  .wb-mobile-nav__badge {
+    top: 4px;
+    right: 6px;
+    min-width: 16px;
+    height: 16px;
+    font-size: 9px;
+    padding: 0 4px;
   }
 
   .shop-name {
