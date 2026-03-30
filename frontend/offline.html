@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hors ligne - WhaBiz</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="theme-color" content="#0F9D58">
+  <style>
+    :root {
+      --green: #0f9d58;
+      --green-dark: #0b7a43;
+      --gold: #d4af37;
+      --bg: #07101a;
+      --panel: rgba(12, 18, 31, 0.78);
+      --line: rgba(255, 255, 255, 0.1);
+      --text: #f8fafc;
+      --muted: rgba(248, 250, 252, 0.72);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(15, 157, 88, 0.2), transparent 38%),
+        radial-gradient(circle at 80% 16%, rgba(212, 175, 55, 0.18), transparent 34%),
+        linear-gradient(180deg, #050a12, var(--bg));
+      color: var(--text);
+      font-family: "DM Sans", Arial, sans-serif;
+    }
+
+    .offline-card {
+      width: min(100%, 440px);
+      padding: 34px 28px 28px;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 28px 72px rgba(0, 0, 0, 0.35);
+      text-align: center;
+    }
+
+    .logo {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 18px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: #fff;
+      font: 800 36px/1 "Outfit", "DM Sans", Arial, sans-serif;
+      box-shadow: 0 18px 42px rgba(15, 157, 88, 0.26);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font: 800 28px/1.1 "Outfit", "DM Sans", Arial, sans-serif;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    .tips {
+      margin: 22px 0 24px;
+      padding: 16px 18px;
+      text-align: left;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tips strong {
+      display: block;
+      margin-bottom: 10px;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .tips ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 18px;
+      min-width: 150px;
+      cursor: pointer;
+      font: 700 14px/1 "DM Sans", Arial, sans-serif;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green), var(--gold));
+      color: #081018;
+      box-shadow: 0 16px 32px rgba(15, 157, 88, 0.18);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 13px;
+      color: rgba(248, 250, 252, 0.58);
+    }
+  </style>
+</head>
+<body>
+  <main class="offline-card">
+    <div class="logo">W</div>
+    <h1>Vous êtes hors ligne</h1>
+    <p>WhaBiz ne peut pas charger cette page pour le moment. Certaines pages déjà ouvertes restent disponibles, mais cette navigation demande une connexion Internet.</p>
+
+    <div class="tips">
+      <strong>Que faire maintenant ?</strong>
+      <ul>
+        <li>Vérifie ta connexion mobile ou Wi‑Fi.</li>
+        <li>Réessaie dans quelques secondes.</li>
+        <li>Si tu utilisais déjà l’app, rouvre une page déjà visitée.</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="button" onclick="window.location.reload()">Réessayer</button>
+      <a class="btn btn-secondary" href="/">Retour accueil</a>
+    </div>
+
+    <p class="status" id="networkStatus">Connexion en attente…</p>
+  </main>
+
+  <script>
+    (function () {
+      var node = document.getElementById('networkStatus');
+      function render() {
+        node.textContent = navigator.onLine
+          ? 'Connexion détectée. Tu peux réessayer.'
+          : 'Toujours hors ligne.';
+      }
+      window.addEventListener('online', render);
+      window.addEventListener('offline', render);
+      render();
+    })();
+  </script>
+</body>
+</html>

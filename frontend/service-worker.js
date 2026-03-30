@@ -1,6 +1,7 @@
-const CACHE_NAME = 'whabiz-v5';
+const CACHE_NAME = 'whabiz-v6';
 const CORE_ASSETS = [
   '/',
+  '/offline.html',
   '/landing.css',
   '/landing.js',
   '/boutique.css',
@@ -11,6 +12,8 @@ const CORE_ASSETS = [
   '/pwa-install.js',
   '/pwa-launch.css',
   '/pwa-launch.js',
+  '/pwa-network.css',
+  '/pwa-network.js',
   '/admin',
   '/admin/login',
   '/vendeur',
@@ -73,7 +76,7 @@ self.addEventListener('fetch', (event) => {
     } catch (error) {
       if (cached) return cached;
       if (event.request.mode === 'navigate') {
-        const fallback = await cache.match('/');
+        const fallback = await cache.match('/offline.html');
         if (fallback) return fallback;
       }
       throw error;
