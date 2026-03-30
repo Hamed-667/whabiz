@@ -2,14 +2,28 @@
   var BUTTON_ID = 'pwaInstallBtn';
   var MODAL_ID = 'pwaInstallModal';
   var deferredPrompt = null;
+  var modalContent = {
+    title: 'Installer WhaBiz',
+    description: '',
+    steps: []
+  };
 
   function isStandalone() {
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   }
 
+  function isAndroid() {
+    return /android/i.test(window.navigator.userAgent || '');
+  }
+
   function isIos() {
     var ua = window.navigator.userAgent.toLowerCase();
     return /iphone|ipad|ipod/.test(ua) || (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
+  }
+
+  function isChromiumMobile() {
+    var ua = window.navigator.userAgent;
+    return isAndroid() && /Chrome|CriOS|EdgA|SamsungBrowser/i.test(ua);
   }
 
   function isSafari() {
@@ -40,14 +54,9 @@
     modal.className = 'pwa-install-modal is-hidden';
     modal.innerHTML = [
       '<div class="pwa-install-card" role="dialog" aria-modal="true" aria-labelledby="pwaInstallTitle">',
-      '<h3 id="pwaInstallTitle">Installer WhaBiz sur iPhone</h3>',
-      '<p>Sur iPhone, l installation se fait depuis Safari. Une fois ajoutee a l ecran d accueil, l application s ouvre comme une vraie app web.</p>',
-      '<ol>',
-      '<li>Ouvre cette page dans Safari.</li>',
-      '<li>Touche Partager.</li>',
-      '<li>Choisis Ajouter a l ecran d accueil.</li>',
-      '<li>Valide, puis ouvre WhaBiz depuis son icone.</li>',
-      '</ol>',
+      '<h3 id="pwaInstallTitle"></h3>',
+      '<p id="pwaInstallDescription"></p>',
+      '<ol id="pwaInstallSteps"></ol>',
       '<div class="pwa-install-actions">',
       '<button type="button" class="pwa-install-close">Fermer</button>',
       '</div>',
@@ -74,7 +83,15 @@
   }
 
   function showModal() {
-    ensureModal().classList.remove('is-hidden');
+    var modal = ensureModal();
+    modal.querySelector('#pwaInstallTitle').textContent = modalContent.title;
+    modal.querySelector('#pwaInstallDescription').textContent = modalContent.description;
+    modal.querySelector('#pwaInstallSteps').innerHTML = modalContent.steps
+      .map(function (step) {
+        return '<li>' + step + '</li>';
+      })
+      .join('');
+    modal.classList.remove('is-hidden');
   }
 
   function hideModal() {
@@ -88,6 +105,10 @@
       return;
     }
     if (deferredPrompt) {
+      showButton('Installer WhaBiz');
+      return;
+    }
+    if (isAndroid() && isChromiumMobile()) {
       showButton('Installer WhaBiz');
       return;
     }
@@ -110,7 +131,32 @@
       return;
     }
 
+    if (isAndroid() && isChromiumMobile()) {
+      modalContent = {
+        title: 'Installer WhaBiz sur Android',
+        description: 'Sur Android, Chrome peut parfois ne pas afficher le prompt tout de suite. L installation reste possible depuis le menu du navigateur.',
+        steps: [
+          'Ouvre cette page dans Chrome ou Samsung Internet.',
+          'Touche le menu du navigateur en haut a droite.',
+          'Choisis Installer l application ou Ajouter a l ecran d accueil.',
+          'Valide puis ouvre WhaBiz depuis son icone.'
+        ]
+      };
+      showModal();
+      return;
+    }
+
     if (isIos() && isSafari()) {
+      modalContent = {
+        title: 'Installer WhaBiz sur iPhone',
+        description: 'Sur iPhone, l installation se fait depuis Safari. Une fois ajoutee a l ecran d accueil, l application s ouvre comme une vraie app web.',
+        steps: [
+          'Ouvre cette page dans Safari.',
+          'Touche Partager.',
+          'Choisis Ajouter a l ecran d accueil.',
+          'Valide, puis ouvre WhaBiz depuis son icone.'
+        ]
+      };
       showModal();
     }
   }
