@@ -163,10 +163,20 @@
 
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/service-worker.js').catch(function (error) {
-        console.warn('[pwa] service worker registration failed:', error && error.message ? error.message : error);
-      });
+    if (window.__whabizSwRegistrationPromise) return;
+
+    window.__whabizSwRegistrationPromise = new Promise(function (resolve) {
+      function startRegistration() {
+        navigator.serviceWorker.register('/service-worker.js').then(function (registration) {
+          window.dispatchEvent(new CustomEvent('whabiz:sw-registration', { detail: registration }));
+          resolve(registration);
+        }).catch(function (error) {
+          console.warn('[pwa] service worker registration failed:', error && error.message ? error.message : error);
+          resolve(null);
+        });
+      }
+
+      window.addEventListener('load', startRegistration, { once: true });
     });
   }
 

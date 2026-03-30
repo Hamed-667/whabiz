@@ -9,6 +9,60 @@
   "background_color": "#0F9D58",
   "theme_color": "#0F9D58",
   "orientation": "portrait-primary",
+  "shortcuts": [
+    {
+      "name": "Accueil",
+      "short_name": "Accueil",
+      "description": "Ouvrir l'accueil WhaBiz",
+      "url": "/?source=pwa",
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Espace vendeur",
+      "short_name": "Vendeur",
+      "description": "Ouvrir le dashboard vendeur",
+      "url": "/vendeur/dashboard?source=pwa",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Commandes",
+      "short_name": "Commandes",
+      "description": "Ouvrir les commandes vendeur",
+      "url": "/vendeur/orders?source=pwa",
+      "icons": [
+        {
+          "src": "/icons/icon-128.png",
+          "sizes": "128x128",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "short_name": "Admin",
+      "description": "Ouvrir l'espace admin",
+      "url": "/admin?source=pwa",
+      "icons": [
+        {
+          "src": "/icons/icon-144.png",
+          "sizes": "144x144",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-72.png",

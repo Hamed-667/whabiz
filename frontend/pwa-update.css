@@ -1,0 +1,91 @@
+.pwa-update-banner {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  z-index: 1500;
+  width: min(calc(100vw - 24px), 460px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 157, 88, 0.28);
+  background: rgba(7, 12, 22, 0.94);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -16px);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
+}
+
+.pwa-update-banner.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.pwa-update-copy {
+  min-width: 0;
+}
+
+.pwa-update-title {
+  display: block;
+  margin-bottom: 4px;
+  color: #f8fafc;
+  font: 800 14px/1.2 "Outfit", "DM Sans", sans-serif;
+}
+
+.pwa-update-text {
+  display: block;
+  color: rgba(248, 250, 252, 0.74);
+  font: 500 13px/1.45 "DM Sans", sans-serif;
+}
+
+.pwa-update-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pwa-update-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font: 700 13px/1 "DM Sans", sans-serif;
+  transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+}
+
+.pwa-update-btn:hover {
+  transform: translateY(-1px);
+}
+
+.pwa-update-btn-primary {
+  background: linear-gradient(135deg, #0f9d58, #d4af37);
+  color: #081018;
+}
+
+.pwa-update-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 640px) {
+  .pwa-update-banner {
+    top: 12px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pwa-update-actions {
+    width: 100%;
+  }
+
+  .pwa-update-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}

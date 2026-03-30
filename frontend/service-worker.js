@@ -1,4 +1,4 @@
-const CACHE_NAME = 'whabiz-v6';
+const CACHE_NAME = 'whabiz-v7';
 const CORE_ASSETS = [
   '/',
   '/offline.html',
@@ -14,6 +14,8 @@ const CORE_ASSETS = [
   '/pwa-launch.js',
   '/pwa-network.css',
   '/pwa-network.js',
+  '/pwa-update.css',
+  '/pwa-update.js',
   '/admin',
   '/admin/login',
   '/vendeur',
@@ -40,7 +42,12 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
   );
-  self.skipWaiting();
+});
+
+self.addEventListener('message', (event) => {
+  if (event && event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', (event) => {
