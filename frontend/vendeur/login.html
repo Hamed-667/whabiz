@@ -384,6 +384,7 @@
         localStorage.setItem('vendeurId', data.vendeur.id);
         localStorage.setItem('vendeurNom', data.vendeur.nom);
         localStorage.setItem('vendeurBoutique', data.vendeur.boutique);
+        localStorage.setItem('whabizLaunchTarget', 'vendeur');
 
         setTimeout(function() {
           window.location.href = '/vendeur/dashboard';

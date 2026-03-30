@@ -1,6 +1,66 @@
 
+function isPwaLaunchContext() {
+  try {
+    var params = new URLSearchParams(window.location.search || '');
+    if (params.get('source') === 'pwa') return true;
+  } catch (e) {}
 
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
 
+function getPreferredLaunchTarget() {
+  return String(localStorage.getItem('whabizLaunchTarget') || '').toLowerCase();
+}
+
+function hasVendorSession() {
+  return Boolean(localStorage.getItem('vendeurToken') && localStorage.getItem('vendeurId'));
+}
+
+async function hasAdminSession() {
+  try {
+    var res = await fetch('/api/auth/admin/session', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
+    });
+    return res.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+(async function () {
+  if (!isPwaLaunchContext()) return;
+
+  var preferred = getPreferredLaunchTarget();
+  var vendorReady = hasVendorSession();
+
+  if (preferred === 'vendeur' && vendorReady) {
+    window.location.replace('/vendeur/dashboard');
+    return;
+  }
+
+  if (preferred === 'admin') {
+    if (await hasAdminSession()) {
+      window.location.replace('/admin');
+      return;
+    }
+    if (vendorReady) {
+      window.location.replace('/vendeur/dashboard');
+      return;
+    }
+    return;
+  }
+
+  if (vendorReady) {
+    window.location.replace('/vendeur/dashboard');
+    return;
+  }
+
+  if (await hasAdminSession()) {
+    window.location.replace('/admin');
+  }
+})();
 
 const landingSession = localStorage.getItem('landingSession') || ('land_' + Date.now() + '_' + Math.random().toString(16).slice(2));
 localStorage.setItem('landingSession', landingSession);

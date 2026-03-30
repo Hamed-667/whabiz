@@ -270,6 +270,7 @@
           headers: { 'Accept': 'application/json' }
         });
         if (!res.ok) return false;
+        localStorage.setItem('whabizLaunchTarget', 'admin');
         window.location.replace(getNextPath());
         return true;
       } catch (error) {
@@ -309,6 +310,7 @@
           return;
         }
 
+        localStorage.setItem('whabizLaunchTarget', 'admin');
         window.location.replace(getNextPath());
       } catch (error) {
         showMessage('Erreur reseau. Reessaie.', 'error');
