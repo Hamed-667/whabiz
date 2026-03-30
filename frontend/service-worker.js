@@ -1,4 +1,4 @@
-const CACHE_NAME = 'whabiz-v4';
+const CACHE_NAME = 'whabiz-v5';
 const CORE_ASSETS = [
   '/',
   '/landing.css',
@@ -9,6 +9,8 @@ const CORE_ASSETS = [
   '/manifest.json',
   '/pwa-install.css',
   '/pwa-install.js',
+  '/pwa-launch.css',
+  '/pwa-launch.js',
   '/admin',
   '/admin/login',
   '/vendeur',
