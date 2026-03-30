@@ -1,12 +1,21 @@
 @media (max-width: 920px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
   body.wb-mobile-nav-ready {
     padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    overflow-x: clip;
   }
 
   .wb-mobile-nav {
     position: fixed;
     left: 12px;
     right: 12px;
+    width: auto;
+    max-width: calc(100vw - 24px);
     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     z-index: 1250;
     display: grid;
@@ -62,6 +71,33 @@
     white-space: nowrap;
     font: 700 11px/1 "DM Sans", sans-serif;
     letter-spacing: 0.02em;
+  }
+}
+
+@media (max-width: 480px) {
+  .wb-mobile-nav {
+    left: 8px;
+    right: 8px;
+    max-width: calc(100vw - 16px);
+    gap: 4px;
+    padding: 8px 6px;
+    border-radius: 20px;
+  }
+
+  .wb-mobile-nav__item {
+    gap: 4px;
+    padding: 8px 2px 7px;
+    border-radius: 14px;
+  }
+
+  .wb-mobile-nav__icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .wb-mobile-nav__label {
+    font-size: 10px;
+    letter-spacing: 0;
   }
 }
 
