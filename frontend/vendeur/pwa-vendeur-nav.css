@@ -748,16 +748,20 @@
 
   .wb-quick-actions {
     right: 10px;
-    bottom: calc(98px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   }
 
   .wb-quick-actions__toggle {
-    gap: 8px;
-    padding: 11px 14px;
+    width: 54px;
+    height: 54px;
+    gap: 0;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
   }
 
   .wb-quick-actions__toggle-label {
-    font-size: 12px;
+    display: none;
   }
 
   .wb-quick-actions__sheet {

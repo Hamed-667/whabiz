@@ -1,4 +1,4 @@
-const CACHE_NAME = 'whabiz-v15';
+const CACHE_NAME = 'whabiz-v16';
 const CORE_ASSETS = [
   '/',
   '/offline.html',

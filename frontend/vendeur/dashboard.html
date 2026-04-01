@@ -195,57 +195,117 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,.1);
       border-radius: var(--radius-lg);
-      padding: 32px;
-      margin-bottom: 32px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .welcome-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .welcome-copy {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .welcome-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      margin-bottom: 12px;
+      border-radius: 999px;
+      background: rgba(15,157,88,.14);
+      border: 1px solid rgba(15,157,88,.22);
+      color: rgba(210,255,228,.9);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
     }
 
     .welcome h1 {
       font-family: var(--font-display);
       font-size: 28px;
       font-weight: 800;
-      margin-bottom: 8px;
+      line-height: 1.15;
+      margin-bottom: 6px;
     }
 
     .welcome p {
       color: rgba(255,255,255,.7);
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-
-    .stat-card {
-      background: rgba(255,255,255,.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      transition: all .3s;
-    }
-
-    .stat-card:hover {
+    .welcome-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 999px;
       background: rgba(255,255,255,.08);
-      border-color: var(--premium-green);
-      transform: translateY(-2px);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
-    .stat-label {
-      font-size: 13px;
+    .welcome-link:hover {
+      background: rgba(255,255,255,.12);
+    }
+
+    .welcome-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .welcome-kpi {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 16px 18px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      text-decoration: none;
+    }
+
+    .welcome-kpi-label {
+      font-size: 11px;
       color: rgba(255,255,255,.6);
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
+      letter-spacing: .08em;
     }
 
-    .stat-value {
-      font-size: 32px;
+    .welcome-kpi-value {
+      font-size: 28px;
       font-weight: 800;
       font-family: var(--font-display);
       color: var(--premium-green);
-      word-break: break-all;
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .welcome-kpi-value--plan {
+      font-size: 22px;
+    }
+
+    .welcome-kpi-link {
+      justify-content: center;
+      background: linear-gradient(180deg, rgba(15,157,88,.12), rgba(255,255,255,.04));
+    }
+
+    .welcome-kpi-link .welcome-kpi-value {
+      font-size: 18px;
+      color: #dfffea;
     }
 
     .section {
@@ -253,8 +313,19 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,.1);
       border-radius: var(--radius-lg);
-      padding: 32px;
-      margin-bottom: 32px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-title-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,.58);
     }
 
     .section-header {
@@ -679,16 +750,8 @@
         flex-direction: column;
       }
 
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
       .products-grid {
         grid-template-columns: 1fr;
-      }
-
-      .stat-value {
-        font-size: 24px;
       }
 
       .gallery-grid {
@@ -697,6 +760,59 @@
 
       .variant-row {
         grid-template-columns: 1fr;
+      }
+
+      .welcome {
+        padding: 18px;
+      }
+
+      .welcome-head {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 14px;
+      }
+
+      .welcome h1 {
+        font-size: 22px;
+      }
+
+      .welcome-link {
+        width: 100%;
+      }
+
+      .welcome-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .welcome-kpi:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .welcome-kpi {
+        padding: 14px 14px;
+      }
+
+      .welcome-kpi-value {
+        font-size: 22px;
+      }
+
+      .welcome-kpi-value--plan,
+      .welcome-kpi-link .welcome-kpi-value {
+        font-size: 18px;
+      }
+
+      .section {
+        padding: 20px;
+      }
+
+      .section-header {
+        align-items: flex-start;
+      }
+
+      .section-header .btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
       }
     }
   </style>
@@ -728,28 +844,37 @@
   <div class="container">
 
     <div class="welcome">
-      <h1>Bonjour <span id="vendeurNom"></span> 👋</h1>
-      <p>Gérez votre boutique et vos produits</p>
-    </div>
+      <div class="welcome-head">
+        <div class="welcome-copy">
+          <span class="welcome-eyebrow">Tableau de bord</span>
+          <h1>Bonjour <span id="vendeurNom"></span> 👋</h1>
+          <p>Gardez l’essentiel sous les yeux et gérez votre boutique sans surcharge.</p>
+        </div>
+        <a href="#" class="welcome-link" id="shopVisitLink">Voir ma boutique</a>
+      </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Produits</div>
-        <div class="stat-value" id="totalProduits">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Plan Actuel</div>
-        <div class="stat-value stat-value-md" id="planActuel">-</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Lien Boutique</div>
-        <div class="stat-value stat-value-sm" id="shopLink">-</div>
+      <div class="welcome-kpis">
+        <div class="welcome-kpi">
+          <span class="welcome-kpi-label">Produits</span>
+          <strong class="welcome-kpi-value" id="totalProduits">0</strong>
+        </div>
+        <div class="welcome-kpi">
+          <span class="welcome-kpi-label">Plan actuel</span>
+          <strong class="welcome-kpi-value welcome-kpi-value--plan" id="planActuel">-</strong>
+        </div>
+        <a class="welcome-kpi welcome-kpi-link" id="shopLinkCard" href="#">
+          <span class="welcome-kpi-label">Lien boutique</span>
+          <strong class="welcome-kpi-value" id="shopLink">-</strong>
+        </a>
       </div>
     </div>
 
     <div class="section">
       <div class="section-header">
-        <h2 class="section-title">🛍️ Mes Produits</h2>
+        <div class="section-title-row">
+          <h2 class="section-title">🛍️ Mes Produits</h2>
+          <p class="section-subtitle">Ajoutez, modifiez et gardez votre catalogue propre.</p>
+        </div>
         <button class="btn btn-primary" onclick="openAddModal()">➕ Ajouter un produit</button>
       </div>
 

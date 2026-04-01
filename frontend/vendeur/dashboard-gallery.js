@@ -32,6 +32,14 @@ async function loadData() {
     document.getElementById('planActuel').textContent = vendeurData.plan.toUpperCase();
     document.getElementById('shopLink').textContent = '/' + vendeurData.slug;
     document.getElementById('viewShop').href = '/' + vendeurData.slug;
+    var shopVisitLink = document.getElementById('shopVisitLink');
+    if (shopVisitLink) {
+      shopVisitLink.href = '/' + vendeurData.slug;
+    }
+    var shopLinkCard = document.getElementById('shopLinkCard');
+    if (shopLinkCard) {
+      shopLinkCard.href = '/' + vendeurData.slug;
+    }
     var produitsRes = await apiFetch('/api/products/vendeur/' + vendeurId);
     currentProducts = await produitsRes.json();
 
