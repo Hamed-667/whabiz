@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="application-name" content="WhaBiz">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="WhaBiz">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0F9D58">
+  <script>
+    (function () {
+      try {
+        localStorage.setItem('whabizLaunchTarget', 'vendeur');
+
+        var hasVendor = Boolean(localStorage.getItem('vendeurToken') && localStorage.getItem('vendeurId'));
+        if (hasVendor) {
+          window.location.replace('/vendeur/dashboard');
+        }
+      } catch (error) {}
+    })();
+  </script>
+  <title>Inscription Vendeur - WhaBiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/pwa-install.css">
+  <link rel="stylesheet" href="/pwa-launch.css">
+  <link rel="stylesheet" href="/pwa-network.css">
+  <link rel="stylesheet" href="/pwa-update.css">
+  <script src="/pwa-install.js" defer></script>
+  <script src="/pwa-launch.js" defer></script>
+  <script src="/pwa-network.js" defer></script>
+  <script src="/pwa-update.js" defer></script>
+  <style>
+    :root {
+      --premium-green: #0F9D58;
+      --premium-green-dark: #0B7A43;
+      --premium-gold: #D4AF37;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: #0a0e14;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 18% 28%, rgba(15,157,88,0.15) 0%, transparent 48%),
+        radial-gradient(ellipse at 82% 72%, rgba(212,175,55,0.08) 0%, transparent 48%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .signup-container {
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .signup-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font: 800 30px/1 var(--font-display);
+      color: #fff;
+      background: linear-gradient(135deg, var(--premium-green) 0%, var(--premium-gold) 100%);
+      box-shadow: 0 4px 20px rgba(15,157,88,.3);
+    }
+
+    .signup-title {
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .signup-subtitle {
+      color: rgba(255,255,255,.62);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .signup-card {
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.16);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,.92);
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(255,255,255,.15);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: #fff;
+      background: rgba(255,255,255,.05);
+      outline: none;
+      transition: all .25s;
+    }
+
+    .form-select option {
+      color: #111827;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255,255,255,.4);
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: var(--premium-green);
+      background: rgba(255,255,255,.08);
+      box-shadow: 0 0 0 3px rgba(15,157,88,.15);
+    }
+
+    .form-hint {
+      margin-top: 6px;
+      color: rgba(255,255,255,.52);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .btn-primary {
+      width: 100%;
+      margin-top: 8px;
+      padding: 16px;
+      border: none;
+      border-radius: 999px;
+      font: 700 16px/1 var(--font-body);
+      color: #000;
+      background: linear-gradient(135deg, var(--premium-green) 0%, var(--premium-gold) 100%);
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(15,157,88,.4);
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(15,157,88,.5);
+    }
+
+    .btn-primary.loading {
+      pointer-events: none;
+      opacity: .76;
+    }
+
+    .btn-primary.loading::after {
+      content: '';
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      margin-left: 8px;
+      vertical-align: middle;
+      border: 2px solid rgba(0,0,0,.2);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+
+    .alert {
+      display: none;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-error {
+      background: rgba(239,68,68,.15);
+      border: 1px solid rgba(239,68,68,.3);
+      color: #FCA5A5;
+    }
+
+    .alert-success {
+      background: rgba(15,157,88,.15);
+      border: 1px solid rgba(15,157,88,.3);
+      color: #86efac;
+    }
+
+    .signup-footer {
+      margin-top: 22px;
+      text-align: center;
+      color: rgba(255,255,255,.56);
+      font-size: 13px;
+    }
+
+    .signup-footer a {
+      color: var(--premium-green);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .signup-footer a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 640px) {
+      .signup-card {
+        padding: 24px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <div class="signup-logo">
+      <div class="logo-icon">W</div>
+      <h1 class="signup-title">Creez votre espace vendeur</h1>
+      <p class="signup-subtitle">Installez WhaBiz, creez votre compte, puis gerez votre boutique directement depuis l'app.</p>
+    </div>
+
+    <div class="signup-card">
+      <div id="alert" class="alert"></div>
+
+      <form id="signupForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Votre nom</label>
+            <input type="text" class="form-input" id="nomInput" placeholder="Ex: Faye Hamed" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nom de la boutique</label>
+            <input type="text" class="form-input" id="boutiqueInput" placeholder="Ex: Zelef Store" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Numero WhatsApp</label>
+            <input type="tel" class="form-input" id="telInput" placeholder="+226 XX XX XX XX" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="emailInput" placeholder="contact@boutique.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Plan</label>
+            <select class="form-select" id="planInput">
+              <option value="starter">Starter</option>
+              <option value="pro" selected>Pro</option>
+              <option value="business">Business</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mot de passe</label>
+            <input type="password" class="form-input" id="passwordInput" placeholder="8+ caracteres avec lettres et chiffres" required>
+            <div class="form-hint">Choisissez directement votre mot de passe vendeur.</div>
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Produits vendus</label>
+            <input type="text" class="form-input" id="produitsInput" placeholder="Ex: vetements, chaussures, accessoires">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="btnSignup">Creer ma boutique</button>
+      </form>
+
+      <div class="signup-footer">
+        Deja un compte ? <a href="/vendeur">Se connecter</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var form = document.getElementById('signupForm');
+    var alertBox = document.getElementById('alert');
+    var btnSignup = document.getElementById('btnSignup');
+
+    function showAlert(message, type) {
+      alertBox.className = 'alert alert-' + type + ' show';
+      alertBox.textContent = message;
+    }
+
+    async function loginVendor(tel, password) {
+      var res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tel: tel, password: password })
+      });
+
+      var data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Connexion impossible apres inscription');
+      }
+
+      localStorage.setItem('vendeurToken', data.token);
+      localStorage.setItem('vendeurId', data.vendeur.id);
+      localStorage.setItem('vendeurNom', data.vendeur.nom);
+      localStorage.setItem('vendeurBoutique', data.vendeur.boutique);
+      localStorage.setItem('whabizLaunchTarget', 'vendeur');
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      var payload = {
+        nom: document.getElementById('nomInput').value.trim(),
+        boutique: document.getElementById('boutiqueInput').value.trim(),
+        tel: document.getElementById('telInput').value.trim(),
+        email: document.getElementById('emailInput').value.trim(),
+        plan: document.getElementById('planInput').value,
+        produits: document.getElementById('produitsInput').value.trim(),
+        password: document.getElementById('passwordInput').value
+      };
+
+      if (!payload.nom || !payload.boutique || !payload.tel || !payload.password) {
+        showAlert('Veuillez remplir les champs obligatoires.', 'error');
+        return;
+      }
+
+      btnSignup.classList.add('loading');
+      btnSignup.textContent = 'Creation en cours';
+
+      try {
+        var response = await fetch('/api/vendeurs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        var data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Inscription impossible');
+        }
+
+        await loginVendor(payload.tel, payload.password);
+        showAlert('Boutique creee. Ouverture de votre espace vendeur...', 'success');
+
+        window.setTimeout(function () {
+          window.location.href = '/vendeur/dashboard';
+        }, 900);
+      } catch (error) {
+        showAlert(error.message || 'Inscription impossible', 'error');
+      } finally {
+        btnSignup.classList.remove('loading');
+        btnSignup.textContent = 'Creer ma boutique';
+      }
+    });
+  </script>
+</body>
+</html>

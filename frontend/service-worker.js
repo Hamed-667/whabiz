@@ -1,4 +1,4 @@
-const CACHE_NAME = 'whabiz-v13';
+const CACHE_NAME = 'whabiz-v14';
 const CORE_ASSETS = [
   '/',
   '/offline.html',
@@ -19,6 +19,7 @@ const CORE_ASSETS = [
   '/admin',
   '/admin/login',
   '/vendeur',
+  '/vendeur/signup',
   '/vendeur/dashboard',
   '/vendeur/orders',
   '/vendeur/stats',
