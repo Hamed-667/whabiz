@@ -125,6 +125,16 @@ body::after {
   background: var(--wb-bg-2);
 }
 
+.welcome,
+.section,
+.stats-grid,
+.products-grid,
+.chart-container,
+.top-products {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 420px;
+}
+
 .page-title,
 .section-title,
 .welcome h1 {
@@ -177,6 +187,26 @@ body::after {
 
   .container {
     padding: 24px 16px;
+  }
+
+  .header,
+  .welcome,
+  .section,
+  .stat-card,
+  .card,
+  .chart-container,
+  .top-products,
+  .modal-content {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn:hover,
+  .stat-card:hover,
+  .product-card:hover,
+  .card:hover {
+    transform: none !important;
   }
 }
 

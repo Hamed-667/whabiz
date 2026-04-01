@@ -483,6 +483,9 @@
       var amounts = series.map(function(point) { return Number(point.amount || 0); });
       var orders = series.map(function(point) { return Number(point.orders || 0); });
       var ctx = document.getElementById('salesChart').getContext('2d');
+      var compactDevice = window.innerWidth < 860 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var enableChartMotion = !compactDevice && !reduceMotion;
 
       if (state.chart) {
         state.chart.destroy();
@@ -516,9 +519,11 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: enableChartMotion ? { duration: 380 } : false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: {
+              display: window.innerWidth > 560,
               labels: {
                 color: '#dae4fb',
                 boxWidth: 12

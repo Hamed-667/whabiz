@@ -794,3 +794,13 @@
     display: none !important;
   }
 }
+
+@media (max-width: 920px), (prefers-reduced-motion: reduce) {
+  .wb-mobile-nav,
+  .wb-notify__panel,
+  .wb-header-menu__panel,
+  .wb-quick-actions__sheet {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
