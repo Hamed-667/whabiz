@@ -3,7 +3,7 @@
   "short_name": "WhaBiz",
   "description": "Plateforme e-commerce locale du Burkina Faso",
   "id": "/",
-  "start_url": "/?source=pwa",
+  "start_url": "/vendeur?source=pwa",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0F9D58",
@@ -11,10 +11,10 @@
   "orientation": "portrait-primary",
   "shortcuts": [
     {
-      "name": "Accueil",
-      "short_name": "Accueil",
-      "description": "Ouvrir l'accueil WhaBiz",
-      "url": "/?source=pwa",
+      "name": "Connexion vendeur",
+      "short_name": "Connexion",
+      "description": "Ouvrir l'espace vendeur WhaBiz",
+      "url": "/vendeur?source=pwa",
       "icons": [
         {
           "src": "/icons/icon-96.png",

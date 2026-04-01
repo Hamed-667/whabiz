@@ -40,13 +40,20 @@
               window.location.replace('/admin');
             } else if (hasVendor) {
               window.location.replace('/vendeur/dashboard');
+            } else {
+              window.location.replace('/admin/login?source=pwa');
             }
           }).catch(function () {
             if (hasVendor) {
               window.location.replace('/vendeur/dashboard');
+            } else {
+              window.location.replace('/admin/login?source=pwa');
             }
           });
+          return;
         }
+
+        window.location.replace('/vendeur?source=pwa');
       } catch (error) {}
     })();
   </script>

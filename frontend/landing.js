@@ -49,6 +49,7 @@ async function hasAdminSession() {
       window.location.replace('/vendeur/dashboard');
       return;
     }
+    window.location.replace('/admin/login?source=pwa');
     return;
   }
 
@@ -59,7 +60,10 @@ async function hasAdminSession() {
 
   if (await hasAdminSession()) {
     window.location.replace('/admin');
+    return;
   }
+
+  window.location.replace('/vendeur?source=pwa');
 })();
 
 const landingSession = localStorage.getItem('landingSession') || ('land_' + Date.now() + '_' + Math.random().toString(16).slice(2));
