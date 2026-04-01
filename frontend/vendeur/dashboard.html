@@ -544,53 +544,6 @@
       padding: 8px 0;
     }
 
-    .import-card {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .import-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .file-input {
-      flex: 1;
-      min-width: 220px;
-      border: 1.5px dashed rgba(255,255,255,.2);
-      border-radius: var(--radius-md);
-      padding: 10px 12px;
-      color: rgba(255,255,255,.7);
-      background: rgba(255,255,255,.03);
-    }
-
-    .import-hint {
-      font-size: 12px;
-      color: rgba(255,255,255,.55);
-      line-height: 1.5;
-    }
-
-    .import-status {
-      font-size: 12px;
-      color: rgba(255,255,255,.7);
-    }
-
-    .import-status.success {
-      color: #86efac;
-    }
-
-    .import-status.error {
-      color: #fca5a5;
-    }
-
-    
     .gallery-section {
       margin-bottom: 24px;
     }
@@ -791,24 +744,6 @@
       <div class="stat-card">
         <div class="stat-label">Lien Boutique</div>
         <div class="stat-value stat-value-sm" id="shopLink">-</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">Import CSV produits</h2>
-        <a class="btn btn-secondary btn-sm" id="exportProductsCsv" href="#">Exporter CSV</a>
-      </div>
-      <div class="import-card">
-        <div class="import-row">
-          <input type="file" id="csvInput" class="file-input" accept=".csv">
-          <button class="btn btn-primary btn-sm" type="button" id="csvImportBtn">Importer</button>
-        </div>
-        <div class="import-hint">
-          Colonnes supportees: product_id, nom, categorie, prix, stock, description, image, images, prixAvant, lowStockThreshold, variants.
-          "images" accepte des URLs separees par |. "variants" au format Nom:Stock (ex: Rouge:5|Bleu:2).
-        </div>
-        <div class="import-status" id="csvImportStatus"></div>
       </div>
     </div>
 
