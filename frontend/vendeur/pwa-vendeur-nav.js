@@ -35,7 +35,9 @@
   var BADGE_REFRESH_INTERVAL_MS = 60000;
   var businessSnapshot = {
     awaitingActionOrders: 0,
-    stockAlerts: []
+    stockAlerts: [],
+    lastUpdatedAt: 0,
+    hadError: false
   };
 
   function normalizeText(value) {
@@ -66,6 +68,33 @@
     if (!count) return '';
     if (count > 99) return '99+';
     return String(count);
+  }
+
+  function formatRelativeTime(timestamp) {
+    var value = Number(timestamp || 0);
+    if (!value) return 'Mise a jour en attente';
+
+    var deltaSeconds = Math.max(0, Math.round((Date.now() - value) / 1000));
+    if (deltaSeconds < 10) return "Mis a jour a l'instant";
+    if (deltaSeconds < 60) return 'Mis a jour il y a ' + deltaSeconds + ' s';
+
+    var deltaMinutes = Math.round(deltaSeconds / 60);
+    if (deltaMinutes < 60) return 'Mis a jour il y a ' + deltaMinutes + ' min';
+
+    var deltaHours = Math.round(deltaMinutes / 60);
+    return 'Mis a jour il y a ' + deltaHours + ' h';
+  }
+
+  function notificationPriority(count, kind) {
+    if (kind === 'orders') {
+      if (count >= 5) return { label: 'Urgent', tone: 'danger' };
+      if (count > 0) return { label: 'A traiter', tone: 'warning' };
+      return { label: 'Stable', tone: 'neutral' };
+    }
+
+    if (count >= 3) return { label: 'Critique', tone: 'danger' };
+    if (count > 0) return { label: 'Attention', tone: 'warning' };
+    return { label: 'Stable', tone: 'neutral' };
   }
 
   function setNavBadge(href, count, tone) {
@@ -108,6 +137,8 @@
 
       businessSnapshot.awaitingActionOrders = Number(kpis.awaitingActionOrders || 0);
       businessSnapshot.stockAlerts = stockAlerts.slice(0, 6);
+      businessSnapshot.lastUpdatedAt = Date.now();
+      businessSnapshot.hadError = false;
 
       setNavBadge('/vendeur/orders', businessSnapshot.awaitingActionOrders, 'success');
       setNavBadge('/vendeur/stats', businessSnapshot.stockAlerts.length, 'warning');
@@ -115,6 +146,8 @@
     } catch (error) {
       businessSnapshot.awaitingActionOrders = 0;
       businessSnapshot.stockAlerts = [];
+      businessSnapshot.lastUpdatedAt = Date.now();
+      businessSnapshot.hadError = true;
       setNavBadge('/vendeur/orders', 0);
       setNavBadge('/vendeur/stats', 0);
       updateNotificationCenter();
@@ -387,6 +420,8 @@
 
   function buildNotificationRows() {
     var rows = [];
+    var ordersPriority = notificationPriority(businessSnapshot.awaitingActionOrders, 'orders');
+    var stockPriority = notificationPriority(businessSnapshot.stockAlerts.length, 'stock');
 
     if (businessSnapshot.awaitingActionOrders > 0) {
       rows.push(
@@ -396,6 +431,7 @@
           '</span>' +
           '<span class="wb-notify__row-content">' +
             '<strong>' + formatBadgeCount(businessSnapshot.awaitingActionOrders) + ' commande(s) a traiter</strong>' +
+            '<span class="wb-notify__pill wb-notify__pill--' + ordersPriority.tone + '">' + ordersPriority.label + '</span>' +
             '<span>Ouvrir le suivi des commandes</span>' +
           '</span>' +
         '</a>'
@@ -416,6 +452,7 @@
             '</span>' +
             '<span class="wb-notify__row-content">' +
               '<strong>' + escapeHtml(label) + '</strong>' +
+              '<span class="wb-notify__pill wb-notify__pill--' + stockPriority.tone + '">' + stockPriority.label + '</span>' +
               '<span>Stock critique: ' + formatBadgeCount(alert && alert.stock || 0) + ' restant(s)</span>' +
             '</span>' +
           '</a>'
@@ -438,12 +475,27 @@
     return rows.join('');
   }
 
+  function buildNotificationSummary() {
+    var ordersPriority = notificationPriority(businessSnapshot.awaitingActionOrders, 'orders');
+    var stockPriority = notificationPriority(businessSnapshot.stockAlerts.length, 'stock');
+    var syncText = businessSnapshot.hadError ? 'Derniere synchro partielle' : formatRelativeTime(businessSnapshot.lastUpdatedAt);
+
+    return [
+      '<div class="wb-notify__summary">',
+      '<span class="wb-notify__summary-chip wb-notify__summary-chip--' + ordersPriority.tone + '">Commandes: ' + formatBadgeCount(businessSnapshot.awaitingActionOrders) + '</span>',
+      '<span class="wb-notify__summary-chip wb-notify__summary-chip--' + stockPriority.tone + '">Stock: ' + formatBadgeCount(businessSnapshot.stockAlerts.length) + '</span>',
+      '<span class="wb-notify__summary-meta">' + syncText + '</span>',
+      '</div>'
+    ].join('');
+  }
+
   function updateNotificationCenter() {
     var root = document.querySelector('.wb-notify');
     if (!root) return;
 
     var badge = root.querySelector('.wb-notify__badge');
     var body = root.querySelector('.wb-notify__body');
+    var summary = root.querySelector('.wb-notify__summary-slot');
     var count = notificationSummaryCount();
     var text = formatBadgeCount(count);
 
@@ -458,6 +510,10 @@
 
     if (body) {
       body.innerHTML = buildNotificationRows();
+    }
+
+    if (summary) {
+      summary.innerHTML = buildNotificationSummary();
     }
   }
 
@@ -477,8 +533,12 @@
       '<div class="wb-notify__panel" role="dialog" aria-label="Notifications vendeur">',
       '<div class="wb-notify__panel-header">',
       '<div><strong>Notifications</strong><span>Priorites boutique en direct</span></div>',
+      '<div class="wb-notify__panel-actions">',
+      '<button type="button" class="wb-notify__refresh" aria-label="Rafraichir">&#8635;</button>',
       '<button type="button" class="wb-notify__close" aria-label="Fermer">x</button>',
       '</div>',
+      '</div>',
+      '<div class="wb-notify__summary-slot"></div>',
       '<div class="wb-notify__body"></div>',
       '</div>'
     ].join('');
@@ -486,6 +546,7 @@
     var toggle = wrapper.querySelector('.wb-notify__toggle');
     var panel = wrapper.querySelector('.wb-notify__panel');
     var closeButton = wrapper.querySelector('.wb-notify__close');
+    var refreshButton = wrapper.querySelector('.wb-notify__refresh');
 
     function closeNotifications() {
       wrapper.classList.remove('is-open');
@@ -508,6 +569,15 @@
 
     closeButton.addEventListener('click', function () {
       closeNotifications();
+    });
+
+    refreshButton.addEventListener('click', function () {
+      refreshButton.classList.add('is-spinning');
+      Promise.resolve(refreshBusinessBadges()).finally(function () {
+        window.setTimeout(function () {
+          refreshButton.classList.remove('is-spinning');
+        }, 260);
+      });
     });
 
     panel.addEventListener('click', function (event) {

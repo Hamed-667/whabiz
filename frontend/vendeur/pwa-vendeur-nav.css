@@ -230,6 +230,12 @@
     padding: 4px 4px 10px;
   }
 
+  .wb-notify__panel-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .wb-notify__panel-header strong {
     display: block;
     font: 800 15px/1.1 "Outfit", sans-serif;
@@ -253,6 +259,69 @@
     cursor: pointer;
     font-size: 18px;
     line-height: 1;
+  }
+
+  .wb-notify__refresh {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition: transform 0.18s ease;
+  }
+
+  .wb-notify__refresh.is-spinning {
+    transform: rotate(180deg);
+  }
+
+  .wb-notify__summary-slot {
+    margin-bottom: 8px;
+  }
+
+  .wb-notify__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 0 4px 4px;
+  }
+
+  .wb-notify__summary-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #f8fafc;
+    font: 800 11px/1 "DM Sans", sans-serif;
+  }
+
+  .wb-notify__summary-chip--danger {
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #fecaca;
+  }
+
+  .wb-notify__summary-chip--warning {
+    background: rgba(245, 180, 59, 0.12);
+    border-color: rgba(245, 180, 59, 0.26);
+    color: #fcd34d;
+  }
+
+  .wb-notify__summary-chip--neutral {
+    color: rgba(248, 250, 252, 0.78);
+  }
+
+  .wb-notify__summary-meta {
+    color: rgba(248, 250, 252, 0.56);
+    font: 600 11px/1.45 "DM Sans", sans-serif;
   }
 
   .wb-notify__body {
@@ -303,6 +372,34 @@
   .wb-notify__row-content strong {
     display: block;
     font: 700 13px/1.25 "DM Sans", sans-serif;
+  }
+
+  .wb-notify__pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+    min-height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    font: 800 10px/1 "DM Sans", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .wb-notify__pill--danger {
+    background: rgba(239, 68, 68, 0.14);
+    color: #fecaca;
+  }
+
+  .wb-notify__pill--warning {
+    background: rgba(245, 180, 59, 0.14);
+    color: #fcd34d;
+  }
+
+  .wb-notify__pill--neutral {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(248, 250, 252, 0.76);
   }
 
   .wb-notify__row-content span {
