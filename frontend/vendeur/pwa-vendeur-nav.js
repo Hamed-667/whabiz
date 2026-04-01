@@ -33,12 +33,25 @@
   ];
 
   var BADGE_REFRESH_INTERVAL_MS = 60000;
+  var businessSnapshot = {
+    awaitingActionOrders: 0,
+    stockAlerts: []
+  };
 
   function normalizeText(value) {
     return String(value || '')
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function clickElement(selector) {
@@ -93,11 +106,18 @@
       var kpis = dashboard.kpis || {};
       var stockAlerts = Array.isArray(dashboard.stockAlerts) ? dashboard.stockAlerts : [];
 
-      setNavBadge('/vendeur/orders', Number(kpis.awaitingActionOrders || 0), 'success');
-      setNavBadge('/vendeur/stats', stockAlerts.length, 'warning');
+      businessSnapshot.awaitingActionOrders = Number(kpis.awaitingActionOrders || 0);
+      businessSnapshot.stockAlerts = stockAlerts.slice(0, 6);
+
+      setNavBadge('/vendeur/orders', businessSnapshot.awaitingActionOrders, 'success');
+      setNavBadge('/vendeur/stats', businessSnapshot.stockAlerts.length, 'warning');
+      updateNotificationCenter();
     } catch (error) {
+      businessSnapshot.awaitingActionOrders = 0;
+      businessSnapshot.stockAlerts = [];
       setNavBadge('/vendeur/orders', 0);
       setNavBadge('/vendeur/stats', 0);
+      updateNotificationCenter();
     }
   }
 
@@ -361,6 +381,153 @@
     actions.appendChild(wrapper);
   }
 
+  function notificationSummaryCount() {
+    return Number(businessSnapshot.awaitingActionOrders || 0) + businessSnapshot.stockAlerts.length;
+  }
+
+  function buildNotificationRows() {
+    var rows = [];
+
+    if (businessSnapshot.awaitingActionOrders > 0) {
+      rows.push(
+        '<a class="wb-notify__row wb-notify__row--success" href="/vendeur/orders">' +
+          '<span class="wb-notify__row-icon">' +
+            '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 6h13l-1.4 7H8.4L7 6Zm0 0L6.2 3.5H3.5M9 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</span>' +
+          '<span class="wb-notify__row-content">' +
+            '<strong>' + formatBadgeCount(businessSnapshot.awaitingActionOrders) + ' commande(s) a traiter</strong>' +
+            '<span>Ouvrir le suivi des commandes</span>' +
+          '</span>' +
+        '</a>'
+      );
+    }
+
+    if (businessSnapshot.stockAlerts.length) {
+      businessSnapshot.stockAlerts.slice(0, 3).forEach(function (alert) {
+        var label = String(alert && alert.nom || 'Produit');
+        if (alert && alert.variant) {
+          label += ' / ' + alert.variant;
+        }
+
+        rows.push(
+          '<a class="wb-notify__row wb-notify__row--warning" href="/vendeur/stats">' +
+            '<span class="wb-notify__row-icon">' +
+              '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.2 4.6 2.7 18a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.8 4.6a2 2 0 0 0-3.5 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '</span>' +
+            '<span class="wb-notify__row-content">' +
+              '<strong>' + escapeHtml(label) + '</strong>' +
+              '<span>Stock critique: ' + formatBadgeCount(alert && alert.stock || 0) + ' restant(s)</span>' +
+            '</span>' +
+          '</a>'
+        );
+      });
+    }
+
+    if (!rows.length) {
+      rows.push(
+        '<div class="wb-notify__empty">' +
+          '<span class="wb-notify__empty-icon">' +
+            '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</span>' +
+          '<strong>Tout est sous controle</strong>' +
+          '<span>Aucune urgence vendeuse pour le moment.</span>' +
+        '</div>'
+      );
+    }
+
+    return rows.join('');
+  }
+
+  function updateNotificationCenter() {
+    var root = document.querySelector('.wb-notify');
+    if (!root) return;
+
+    var badge = root.querySelector('.wb-notify__badge');
+    var body = root.querySelector('.wb-notify__body');
+    var count = notificationSummaryCount();
+    var text = formatBadgeCount(count);
+
+    if (badge) {
+      if (text) {
+        badge.textContent = text;
+        badge.hidden = false;
+      } else {
+        badge.hidden = true;
+      }
+    }
+
+    if (body) {
+      body.innerHTML = buildNotificationRows();
+    }
+  }
+
+  function buildNotificationCenter() {
+    var actions = document.querySelector('.header-right, .header-actions');
+    if (!actions || actions.querySelector('.wb-notify')) return;
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'wb-notify';
+    wrapper.innerHTML = [
+      '<button type="button" class="wb-notify__toggle" aria-label="Notifications vendeur" aria-expanded="false">',
+      '<span class="wb-notify__toggle-icon">',
+      '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0a3 3 0 1 1-6 0m6 0H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      '</span>',
+      '<span class="wb-notify__badge" hidden></span>',
+      '</button>',
+      '<div class="wb-notify__panel" role="dialog" aria-label="Notifications vendeur">',
+      '<div class="wb-notify__panel-header">',
+      '<div><strong>Notifications</strong><span>Priorites boutique en direct</span></div>',
+      '<button type="button" class="wb-notify__close" aria-label="Fermer">x</button>',
+      '</div>',
+      '<div class="wb-notify__body"></div>',
+      '</div>'
+    ].join('');
+
+    var toggle = wrapper.querySelector('.wb-notify__toggle');
+    var panel = wrapper.querySelector('.wb-notify__panel');
+    var closeButton = wrapper.querySelector('.wb-notify__close');
+
+    function closeNotifications() {
+      wrapper.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    function openNotifications() {
+      wrapper.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
+    }
+
+    toggle.addEventListener('click', function (event) {
+      event.stopPropagation();
+      if (wrapper.classList.contains('is-open')) {
+        closeNotifications();
+      } else {
+        openNotifications();
+      }
+    });
+
+    closeButton.addEventListener('click', function () {
+      closeNotifications();
+    });
+
+    panel.addEventListener('click', function (event) {
+      event.stopPropagation();
+    });
+
+    document.addEventListener('click', function (event) {
+      if (!wrapper.contains(event.target)) {
+        closeNotifications();
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeNotifications();
+    });
+
+    actions.appendChild(wrapper);
+    updateNotificationCenter();
+  }
+
   function buildQuickActions() {
     if (document.querySelector('.wb-quick-actions')) return;
     if (!document.body) return;
@@ -463,12 +630,14 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
       buildNav();
+      buildNotificationCenter();
       buildHeaderMenu();
       buildQuickActions();
       initBusinessBadges();
     }, { once: true });
   } else {
     buildNav();
+    buildNotificationCenter();
     buildHeaderMenu();
     buildQuickActions();
     initBusinessBadges();
