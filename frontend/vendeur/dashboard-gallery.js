@@ -6,6 +6,15 @@ var productVariants = [];
 var variantIdCounter = 1;
 var apiFetch = window.authFetch || fetch;
 
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function checkAuth() {
   vendeurId = localStorage.getItem('vendeurId');
   var vendeurNom = localStorage.getItem('vendeurNom');
@@ -86,9 +95,31 @@ function displayProducts() {
     var thresholdValue = Number.isFinite(Number(product.lowStockThreshold)) ? Number(product.lowStockThreshold) : 3;
     var variantsCount = Array.isArray(product.variants) ? product.variants.length : 0;
     var stockClass = stockValue <= thresholdValue ? 'stock-low' : '';
-    var variantsMeta = variantsCount ? '<span>Variantes: ' + variantsCount + '</span>' : '';
+    var escapedName = escapeHtml(product.nom || 'Produit');
+    var escapedCategory = escapeHtml(categorie);
+    var escapedMainImage = escapeHtml(mainImage);
+    var displayPrice = Number(product.prix || 0).toLocaleString('fr-FR');
+    var imageBadge = imageCount > 1 ? imageCount + ' images' : imageCount + ' image';
+    var variantsBadge = variantsCount ? '<span class="product-variant-badge">' + variantsCount + ' variantes</span>' : '';
 
-    card.innerHTML = '<img src="' + mainImage + '" alt="' + product.nom + '" class="product-image" onerror="this.src=\'https://via.placeholder.com/300x200?text=Produit\'"><div class="product-info"><div class="product-category">' + categorie + '</div><div class="product-name">' + product.nom + '</div><div class="product-price">' + product.prix + ' FCFA</div><div class="product-meta"><span class="' + stockClass + '">Stock: ' + stockValue + '</span><span>Seuil: ' + thresholdValue + '</span>' + variantsMeta + '</div><div class="product-images-count">Images: ' + imageCount + '</div><div class="product-actions"><button class="btn btn-secondary btn-sm" onclick="editProduct(' + product.id + ')">Modifier</button><button class="btn btn-danger btn-sm" onclick="deleteProduct(' + product.id + ')">Supprimer</button></div></div>';
+    card.innerHTML = ''
+      + '<div class="product-card__media">'
+      +   '<img src="' + escapedMainImage + '" alt="' + escapedName + '" class="product-image" loading="lazy" onerror="this.src=\'https://via.placeholder.com/300x200?text=Produit\'">'
+      +   '<div class="product-media-badges"><span class="product-media-badge">' + imageBadge + '</span></div>'
+      + '</div>'
+      + '<div class="product-info">'
+      +   '<div class="product-info-top">'
+      +     '<div class="product-category">' + escapedCategory + '</div>'
+      +     variantsBadge
+      +   '</div>'
+      +   '<div class="product-name">' + escapedName + '</div>'
+      +   '<div class="product-price-row">'
+      +     '<div class="product-price">' + displayPrice + ' FCFA</div>'
+      +     '<span class="product-stock-pill ' + stockClass + '">' + stockValue + ' en stock</span>'
+      +   '</div>'
+      +   '<div class="product-meta"><span>Seuil: ' + thresholdValue + '</span></div>'
+      +   '<div class="product-actions"><button class="btn btn-secondary btn-sm" onclick="editProduct(' + product.id + ')">Modifier</button><button class="btn btn-danger btn-sm" onclick="deleteProduct(' + product.id + ')">Supprimer</button></div>'
+      + '</div>';
 
     grid.appendChild(card);
   });

@@ -351,10 +351,14 @@
     }
 
     .product-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
       background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.1);
-      border-radius: var(--radius-md);
-      overflow: hidden;
+      border-radius: 18px;
       transition: all .3s;
     }
 
@@ -365,15 +369,63 @@
       box-shadow: 0 8px 24px rgba(15,157,88,.2);
     }
 
+    .product-card__media {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      aspect-ratio: 1 / 1;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(15,157,88,.18), transparent 45%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
     .product-image {
       width: 100%;
-      height: 160px;
+      height: 100%;
       object-fit: cover;
+      object-position: center center;
       background: rgba(255,255,255,.03);
+      display: block;
+    }
+
+    .product-media-badges {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .product-media-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(8,13,23,.78);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #eefaf3;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      backdrop-filter: blur(10px);
     }
 
     .product-info {
-      padding: 14px;
+      padding: 2px 2px 0;
+    }
+
+    .product-info-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .product-name {
@@ -384,7 +436,8 @@
     }
 
     .product-category {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       padding: 4px 12px;
       background: rgba(15,157,88,.2);
       border: 1px solid rgba(15,157,88,.3);
@@ -392,7 +445,29 @@
       border-radius: 20px;
       font-size: 12px;
       font-weight: 600;
-      margin-bottom: 8px;
+      white-space: nowrap;
+    }
+
+    .product-variant-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255,255,255,.8);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .product-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
     .product-price {
@@ -400,13 +475,27 @@
       font-weight: 800;
       font-family: var(--font-display);
       color: var(--premium-green);
-      margin-bottom: 10px;
+      line-height: 1.1;
     }
 
-    .product-images-count {
-      font-size: 11px;
-      color: rgba(255,255,255,.5);
-      margin-bottom: 10px;
+    .product-stock-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #d6fbe6;
+      background: rgba(15,157,88,.14);
+      border: 1px solid rgba(15,157,88,.22);
+    }
+
+    .product-stock-pill.stock-low {
+      color: #ffd3d3;
+      background: rgba(239,68,68,.12);
+      border-color: rgba(239,68,68,.28);
     }
 
     .product-meta {
@@ -860,39 +949,78 @@
 
       .product-card {
         display: grid;
-        grid-template-columns: 92px minmax(0, 1fr);
+        grid-template-columns: 128px minmax(0, 1fr);
         align-items: stretch;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 16px;
+      }
+
+      .product-card__media {
+        aspect-ratio: auto;
+        min-height: 168px;
+        height: 100%;
+        border-radius: 14px;
       }
 
       .product-image {
-        width: 92px;
+        width: 128px;
         height: 100%;
         min-height: 100%;
+        object-fit: contain;
+        object-position: center center;
+        padding: 6px;
+        background:
+          radial-gradient(circle at 50% 18%, rgba(255,255,255,.12), transparent 48%),
+          linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
       }
 
       .product-info {
-        padding: 12px;
+        padding: 2px 0;
+      }
+
+      .product-info-top {
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+
+      .product-category,
+      .product-variant-badge {
+        min-height: 22px;
       }
 
       .product-category {
         padding: 3px 9px;
         font-size: 10px;
-        margin-bottom: 6px;
+      }
+
+      .product-variant-badge {
+        padding: 0 8px;
+        font-size: 9px;
       }
 
       .product-name {
-        font-size: 14px;
-        margin-bottom: 5px;
+        font-size: 15px;
+        margin-bottom: 6px;
+        line-height: 1.3;
+      }
+
+      .product-price-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 8px;
       }
 
       .product-price {
         font-size: 16px;
-        margin-bottom: 8px;
       }
 
-      .product-images-count {
-        font-size: 10px;
-        margin-bottom: 8px;
+      .product-stock-pill {
+        min-height: 24px;
+        padding: 0 8px;
+        font-size: 9px;
       }
 
       .product-meta {
@@ -903,6 +1031,17 @@
       .product-meta span {
         font-size: 9px;
         padding: 2px 7px;
+      }
+
+      .product-media-badges {
+        top: 8px;
+        right: 8px;
+      }
+
+      .product-media-badge {
+        min-height: 22px;
+        padding: 0 8px;
+        font-size: 9px;
       }
 
       .product-actions {
@@ -922,6 +1061,18 @@
     }
 
     @media (max-width: 420px) {
+      .product-card {
+        grid-template-columns: 120px minmax(0, 1fr);
+      }
+
+      .product-card__media {
+        min-height: 160px;
+      }
+
+      .product-image {
+        width: 120px;
+      }
+
       .welcome-eyebrow {
         font-size: 10px;
         margin-bottom: 8px;
