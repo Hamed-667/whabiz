@@ -164,6 +164,17 @@
       transform: translateY(-2px);
     }
 
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25d366, #94f08a);
+      color: #052814;
+      box-shadow: 0 12px 26px rgba(37,211,102,.18);
+    }
+
+    .btn-whatsapp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(37,211,102,.24);
+    }
+
     .btn-secondary {
       background: rgba(255,255,255,.1);
       color: #fff;
@@ -265,6 +276,18 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
+    }
+
+    .welcome-actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .welcome-actions-bar .btn {
+      min-height: 44px;
+      padding: 0 16px;
     }
 
     .welcome-kpi {
@@ -898,6 +921,14 @@
         display: none;
       }
 
+      .welcome-actions-bar {
+        flex-direction: column;
+      }
+
+      .welcome-actions-bar .btn {
+        width: 100%;
+      }
+
       .welcome-kpis {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
@@ -1105,7 +1136,7 @@
 <body>
 
   <header class="header">
-    <div class="header-inner">
+      <div class="header-inner">
       <div class="header-left">
         <div class="logo">
           <span class="logo-icon">W</span>
@@ -1114,11 +1145,11 @@
         <nav class="nav-tabs">
           <a href="/vendeur/dashboard" class="nav-tab active">📊 Produits</a>
           <a href="/vendeur/orders" class="nav-tab">📦 Commandes</a>
-          <a href="/vendeur/stats" class="nav-tab">📈 Statistiques</a>
           <a href="/vendeur/themes" class="nav-tab">🎨 Thèmes</a>
         </nav>
       </div>
       <div class="header-right">
+        <button class="btn btn-whatsapp" type="button" id="shareWhatsappBtn" onclick="shareShopOnWhatsApp()">WhatsApp</button>
         <a href="#" class="btn btn-secondary" id="viewShop">👁️ Voir ma boutique</a>
         <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
       </div>
@@ -1150,6 +1181,11 @@
           <span class="welcome-kpi-label">Lien boutique</span>
           <strong class="welcome-kpi-value" id="shopLink">-</strong>
         </a>
+      </div>
+
+      <div class="welcome-actions-bar">
+        <button class="btn btn-whatsapp" type="button" onclick="shareShopOnWhatsApp()">Partager sur WhatsApp</button>
+        <button class="btn btn-secondary" type="button" onclick="copyShopLink()">Copier le lien</button>
       </div>
     </div>
 

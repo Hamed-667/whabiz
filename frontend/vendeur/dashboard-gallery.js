@@ -37,6 +37,7 @@ async function loadData() {
   try {
     var vendeurRes = await apiFetch('/api/vendeurs/' + vendeurId);
     vendeurData = await vendeurRes.json();
+    localStorage.setItem('vendeurSlug', vendeurData.slug || '');
 
     document.getElementById('planActuel').textContent = vendeurData.plan.toUpperCase();
     document.getElementById('shopLink').textContent = '/' + vendeurData.slug;
@@ -55,10 +56,6 @@ async function loadData() {
     document.getElementById('totalProduits').textContent = currentProducts.length;
 
     // Ajout du bouton de paramètres et du modal
-    injectSettingsButton();
-    createSettingsModal();
-    injectSettingsModalStyles();
-
     displayProducts();
     handleDashboardEntryAction();
 
@@ -84,6 +81,38 @@ function injectSettingsButton() {
     var headerActions = document.querySelector('.header-actions');
     if (!headerActions || document.getElementById('settingsBtn')) return;
     headerActions.insertAdjacentHTML('afterbegin', '<button id="settingsBtn" class="btn btn-secondary" onclick="openSettingsModal()">⚙️ Paramètres</button>');
+}
+
+function getShopUrl() {
+  if (!vendeurData || !vendeurData.slug) return '';
+  return window.location.origin + '/' + vendeurData.slug;
+}
+
+async function copyShopLink() {
+  var shopUrl = getShopUrl();
+  if (!shopUrl) {
+    alert('Lien boutique indisponible pour le moment.');
+    return;
+  }
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(shopUrl);
+      alert('Lien boutique copie.');
+      return;
+    }
+  } catch (error) {}
+  window.prompt('Copiez le lien de votre boutique', shopUrl);
+}
+
+function shareShopOnWhatsApp() {
+  var shopUrl = getShopUrl();
+  if (!shopUrl) {
+    alert('Lien boutique indisponible pour le moment.');
+    return;
+  }
+  var shopName = vendeurData && vendeurData.boutique ? vendeurData.boutique : 'ma boutique';
+  var message = 'Bonjour 👋 Voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
+  window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
 }
 
 function displayProducts() {

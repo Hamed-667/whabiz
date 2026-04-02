@@ -3109,9 +3109,9 @@ app.get('/vendeur/signup',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','sig
 app.get('/vendeur/onboarding',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','onboarding.html')));
 app.get('/vendeur/dashboard',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','dashboard.html')));
 app.get('/vendeur/orders',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','orders.html')));
-app.get('/vendeur/stats',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','stats.html')));
+app.get('/vendeur/stats',(req,res)=>res.redirect('/vendeur/dashboard'));
 app.get('/vendeur/themes',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','themes.html')));
-app.get('/vendeur/email',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','email-settings.html')));
+app.get('/vendeur/email',(req,res)=>res.redirect('/vendeur/dashboard'));
 app.get('/vendeur/recovery',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','recovery.html')));
 app.get('/:slug',(req,res)=>res.sendFile(path.join(FRONT,'boutique.html')));
 

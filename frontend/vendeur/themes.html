@@ -327,11 +327,11 @@
         <nav class="nav-tabs">
           <a href="/vendeur/dashboard" class="nav-tab">Produits</a>
           <a href="/vendeur/orders" class="nav-tab">Commandes</a>
-          <a href="/vendeur/stats" class="nav-tab">Stats</a>
           <a href="/vendeur/themes" class="nav-tab active">Themes</a>
         </nav>
       </div>
       <div class="header-right">
+        <button class="btn btn-secondary" type="button" id="shareWhatsappBtn" onclick="shareShopOnWhatsApp()">Partager WhatsApp</button>
         <a href="#" class="btn btn-secondary" id="viewShop" target="_blank">Voir ma boutique</a>
         <button class="btn btn-danger" onclick="logout()">Deconnexion</button>
       </div>
@@ -486,6 +486,7 @@
       try {
         var vendeurRes = await apiFetch('/api/vendeurs/' + vendeurId);
         vendeurData = await vendeurRes.json();
+        localStorage.setItem('vendeurSlug', vendeurData.slug || '');
         document.getElementById('viewShop').href = '/' + vendeurData.slug;
 
         
@@ -571,6 +572,17 @@
 
     function previewTheme() {
       window.open('/' + vendeurData.slug, '_blank');
+    }
+
+    function shareShopOnWhatsApp() {
+      if (!vendeurData || !vendeurData.slug) {
+        alert('Lien boutique indisponible');
+        return;
+      }
+      var shopUrl = window.location.origin + '/' + vendeurData.slug;
+      var shopName = vendeurData.boutique || 'ma boutique';
+      var message = 'Bonjour 👋 Voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
+      window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
     }
 
     function showNotification(message) {

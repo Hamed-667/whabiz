@@ -8,6 +8,7 @@
     localStorage.removeItem('vendeurId');
     localStorage.removeItem('vendeurNom');
     localStorage.removeItem('vendeurBoutique');
+    localStorage.removeItem('vendeurSlug');
   }
 
   async function authFetch(url, options) {

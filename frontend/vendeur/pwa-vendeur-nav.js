@@ -1,13 +1,13 @@
 (function () {
   var currentPath = window.location.pathname || '';
-  var rootPages = ['/vendeur/dashboard', '/vendeur/orders', '/vendeur/stats', '/vendeur/themes', '/vendeur/email'];
+  var rootPages = ['/vendeur/dashboard', '/vendeur/orders', '/vendeur/themes'];
 
   if (rootPages.indexOf(currentPath) === -1) return;
 
   var navItems = [
     {
       href: '/vendeur/dashboard',
-      label: 'Accueil',
+      label: 'Produits',
       icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     },
     {
@@ -16,19 +16,15 @@
       icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 6h13l-1.4 7H8.4L7 6Zm0 0L6.2 3.5H3.5M9 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     },
     {
-      href: '/vendeur/stats',
-      label: 'Stats',
-      icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19V9m7 10V5m7 14v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3.5 19.5h17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
-    },
-    {
       href: '/vendeur/themes',
       label: 'Themes',
       icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.5-.4-.9-.9-.9H17a2.5 2.5 0 1 1 0-5h2.6c.5 0 .9-.4.9-.9A8.2 8.2 0 0 0 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7.8" cy="11" r="1" fill="currentColor"/><circle cx="10.5" cy="7.7" r="1" fill="currentColor"/><circle cx="8.4" cy="15" r="1" fill="currentColor"/></svg>'
     },
     {
-      href: '/vendeur/email',
-      label: 'Config',
-      icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m4 7 8 5 8-5M5 19h14a1 1 0 0 0 1-1V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      href: '#',
+      label: 'Boutique',
+      icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7.5 5.2 4h13.6L20 7.5M5 7.5h14v10.8a1.7 1.7 0 0 1-1.7 1.7H6.7A1.7 1.7 0 0 1 5 18.3V7.5Zm4 4h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      kind: 'shop'
     }
   ];
 
@@ -54,6 +50,30 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  function getStoredShopUrl() {
+    var slug = localStorage.getItem('vendeurSlug') || '';
+    if (slug) return new URL('/' + slug, window.location.origin).toString();
+    var trigger = document.getElementById('viewShop');
+    if (trigger && trigger.getAttribute('href') && trigger.getAttribute('href') !== '#') {
+      return new URL(trigger.getAttribute('href'), window.location.origin).toString();
+    }
+    return '';
+  }
+
+  function getStoredShopName() {
+    return (localStorage.getItem('vendeurBoutique') || '').trim() || 'Ma boutique';
+  }
+
+  function shareShopToWhatsApp() {
+    var shopUrl = getStoredShopUrl();
+    if (!shopUrl) {
+      showQuickToast('Lien boutique indisponible', 'error');
+      return;
+    }
+    var message = 'Bonjour 👋 Voici ma boutique ' + getStoredShopName() + ' sur WhaBiz : ' + shopUrl;
+    window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
   }
 
   function clickElement(selector) {
@@ -125,6 +145,7 @@
     var vendeurId = localStorage.getItem('vendeurId');
     var apiFetch = window.authFetch || window.fetch;
     if (!vendeurId || typeof apiFetch !== 'function') return;
+    syncShopNavLink();
 
     try {
       var response = await apiFetch('/api/vendeurs/' + encodeURIComponent(vendeurId) + '/dashboard?periodDays=7');
@@ -141,7 +162,7 @@
       businessSnapshot.hadError = false;
 
       setNavBadge('/vendeur/orders', businessSnapshot.awaitingActionOrders, 'success');
-      setNavBadge('/vendeur/stats', businessSnapshot.stockAlerts.length, 'warning');
+      setNavBadge('/vendeur/dashboard', businessSnapshot.stockAlerts.length, 'warning');
       updateNotificationCenter();
     } catch (error) {
       businessSnapshot.awaitingActionOrders = 0;
@@ -149,7 +170,7 @@
       businessSnapshot.lastUpdatedAt = Date.now();
       businessSnapshot.hadError = true;
       setNavBadge('/vendeur/orders', 0);
-      setNavBadge('/vendeur/stats', 0);
+      setNavBadge('/vendeur/dashboard', 0);
       updateNotificationCenter();
     }
   }
@@ -177,21 +198,32 @@
     }, 2200);
   }
 
-  async function shareShop() {
-    var trigger = document.getElementById('viewShop');
-    if (!trigger || !trigger.getAttribute('href') || trigger.getAttribute('href') === '#') {
+  async function shareShop(mode) {
+    var shopUrl = getStoredShopUrl();
+    if (!shopUrl) {
       showQuickToast('Lien boutique indisponible', 'error');
       return;
     }
 
-    var shopUrl = new URL(trigger.getAttribute('href'), window.location.origin).toString();
-    var shopNameNode = document.querySelector('.shop-name');
-    var shopName = shopNameNode ? shopNameNode.textContent.trim() : 'Ma boutique';
+    if (mode === 'whatsapp') {
+      shareShopToWhatsApp();
+      return;
+    }
 
     try {
+      if (mode === 'copy') {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(shopUrl);
+          showQuickToast('Lien boutique copie');
+          return;
+        }
+        window.prompt('Copiez le lien de votre boutique', shopUrl);
+        return;
+      }
+
       if (navigator.share) {
         await navigator.share({
-          title: shopName,
+          title: getStoredShopName(),
           text: 'Decouvrez ma boutique sur WhaBiz',
           url: shopUrl
         });
@@ -232,38 +264,6 @@
           onSelect: function () { clickElement('#refreshBtn'); }
         });
       }
-
-      if (document.getElementById('exportBtn')) {
-        actions.push({
-          label: 'Exporter CSV',
-          icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-          onSelect: function () { clickElement('#exportBtn'); }
-        });
-      }
-    }
-
-    if (currentPath === '/vendeur/stats') {
-      if (typeof window.loadData === 'function') {
-        actions.push({
-          label: 'Actualiser stats',
-          icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11a8 8 0 1 0 2.2 5.5M20 4v7h-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-          onSelect: function () {
-            Promise.resolve(window.loadData())
-              .then(function () { showQuickToast('Statistiques actualisees'); })
-              .catch(function () { showQuickToast('Actualisation impossible', 'error'); });
-          }
-        });
-      }
-
-      ['7', '30', '90'].forEach(function (days) {
-        var selector = '.period-btn[data-days="' + days + '"]';
-        if (!document.querySelector(selector)) return;
-        actions.push({
-          label: days + ' jours',
-          icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-          onSelect: function () { clickElement(selector); }
-        });
-      });
     }
 
     if (currentPath === '/vendeur/themes' && typeof window.previewTheme === 'function') {
@@ -274,15 +274,13 @@
       });
     }
 
-    if (currentPath === '/vendeur/email') {
-      actions.push({
-        label: 'Dashboard',
-        icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        onSelect: function () { window.location.href = '/vendeur/dashboard'; }
-      });
-    }
-
     if (viewShop && viewShop.getAttribute('href') && viewShop.getAttribute('href') !== '#') {
+      actions.push({
+        label: 'WhatsApp',
+        icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5A8.5 8.5 0 0 1 7.7 19l-3.7 1 1-3.6A8.5 8.5 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        onSelect: function () { shareShop('whatsapp'); }
+      });
+
       actions.push({
         label: 'Voir boutique',
         icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg>',
@@ -296,9 +294,9 @@
       });
 
       actions.push({
-        label: 'Partager',
+        label: 'Copier lien',
         icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 12.5a3.5 3.5 0 1 0 0-1l9-4.5a3.5 3.5 0 1 0-.8-1.7L6 9.8a3.5 3.5 0 1 0 0 4.4l9.2 4.5a3.5 3.5 0 1 0 .8-1.7l-9-4.5Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        onSelect: function () { shareShop(); }
+        onSelect: function () { shareShop('copy'); }
       });
     }
 
@@ -314,9 +312,11 @@
     nav.setAttribute('aria-label', 'Navigation vendeur');
 
     nav.innerHTML = navItems.map(function (item) {
-      var active = currentPath === item.href;
+      var active = item.kind === 'shop' ? false : currentPath === item.href;
+      var href = item.kind === 'shop' ? '#' : item.href;
+      var extra = item.kind === 'shop' ? ' data-shop-link="1"' : '';
       return [
-        '<a class="wb-mobile-nav__item' + (active ? ' is-active' : '') + '" href="' + item.href + '"' + (active ? ' aria-current="page"' : '') + '>',
+        '<a class="wb-mobile-nav__item' + (active ? ' is-active' : '') + '" href="' + href + '"' + extra + (active ? ' aria-current="page"' : '') + '>',
         '<span class="wb-mobile-nav__icon">' + item.icon + '</span>',
         '<span class="wb-mobile-nav__label">' + item.label + '</span>',
         '</a>'
@@ -325,6 +325,18 @@
 
     document.body.appendChild(nav);
     document.body.classList.add('wb-mobile-nav-ready');
+    syncShopNavLink();
+  }
+
+  function syncShopNavLink() {
+    var shopLink = document.querySelector('.wb-mobile-nav__item[data-shop-link="1"]');
+    if (!shopLink) return;
+    var href = getStoredShopUrl();
+    if (!href) {
+      shopLink.setAttribute('href', '#');
+      return;
+    }
+    shopLink.setAttribute('href', href);
   }
 
   function createActionItem(original, label, icon, danger) {
@@ -438,7 +450,7 @@
         }
 
         rows.push(
-          '<a class="wb-notify__row wb-notify__row--warning" href="/vendeur/stats">' +
+          '<a class="wb-notify__row wb-notify__row--warning" href="/vendeur/dashboard">' +
             '<span class="wb-notify__row-icon">' +
               '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.2 4.6 2.7 18a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.8 4.6a2 2 0 0 0-3.5 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             '</span>' +

@@ -379,10 +379,10 @@
       <nav class="tabs">
         <a href="/vendeur/dashboard" class="tab">Produits</a>
         <a href="/vendeur/orders" class="tab active">Commandes</a>
-        <a href="/vendeur/stats" class="tab">Statistiques</a>
         <a href="/vendeur/themes" class="tab">Themes</a>
       </nav>
       <div class="header-actions">
+        <button id="shareWhatsappBtn" class="btn" type="button">Partager WhatsApp</button>
         <a id="viewShop" class="btn" href="#">Voir boutique</a>
         <button class="btn btn-danger" id="logoutBtn">Deconnexion</button>
       </div>
@@ -393,7 +393,7 @@
     <section class="title">
       <div>
         <h1>Pilotage commandes</h1>
-        <p>Filtres metier, suivi statut, relance client et facturation.</p>
+        <p>Suivez les commandes et relancez vos clients sur WhatsApp sans surcharge.</p>
       </div>
     </section>
 
@@ -442,7 +442,6 @@
           <option value="amount_asc">Montant asc</option>
         </select>
         <button id="refreshBtn" class="btn">Actualiser</button>
-        <button id="exportBtn" class="btn">Exporter CSV</button>
       </div>
       <div class="quick-filters" id="quickFilters">
         <button class="chip active" data-status="all">Toutes</button>
@@ -646,7 +645,6 @@
               allowedStatusOptions(order.statut) +
             '</select>' +
             '<button class="btn btn-sm" data-action="contact" data-tel="' + safeTel + '"' + (safeTel ? '' : ' disabled') + '>Contacter</button>' +
-            '<button class="btn btn-sm" data-action="invoice" data-id="' + escapeHtml(order.id) + '">Facture</button>' +
             '<button class="btn btn-sm" data-action="remind" data-id="' + escapeHtml(order.id) + '">Relancer</button>' +
             '<button class="btn btn-danger btn-sm" data-action="delete" data-id="' + escapeHtml(order.id) + '">Supprimer</button>' +
           '</div>' +
@@ -674,6 +672,7 @@
       var vendorRes = await apiFetch('/api/vendeurs/' + state.vendeurId);
       if (!vendorRes.ok) throw new Error('Impossible de charger le vendeur');
       state.vendeur = await vendorRes.json();
+      localStorage.setItem('vendeurSlug', state.vendeur.slug || '');
 
       document.getElementById('shopName').textContent = state.vendeur.boutique || 'Boutique';
       document.getElementById('viewShop').href = '/' + state.vendeur.slug;
@@ -735,6 +734,17 @@
       var normalized = String(phone).replace(/[^\d]/g, '');
       if (!normalized) return;
       window.open('https://wa.me/' + normalized, '_blank');
+    }
+
+    function shareShopOnWhatsApp() {
+      if (!state.vendeur || !state.vendeur.slug) {
+        alert('Lien boutique indisponible');
+        return;
+      }
+      var shopUrl = window.location.origin + '/' + state.vendeur.slug;
+      var shopName = state.vendeur.boutique || 'ma boutique';
+      var message = 'Bonjour 👋 Voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
+      window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
     }
 
     async function downloadOrdersCsv() {
@@ -799,12 +809,9 @@
           alert('Erreur de chargement');
         });
       });
-      var exportBtn = document.getElementById('exportBtn');
-      if (exportBtn) {
-        exportBtn.addEventListener('click', function() {
-          downloadOrdersCsv();
-        });
-      }
+      document.getElementById('shareWhatsappBtn').addEventListener('click', function() {
+        shareShopOnWhatsApp();
+      });
 
       document.getElementById('quickFilters').addEventListener('click', function(event) {
         var target = event.target;
@@ -828,7 +835,6 @@
         }
         var id = Number(button.getAttribute('data-id') || 0);
         if (!id) return;
-        if (action === 'invoice') openInvoice(id);
         if (action === 'remind') sendReminder(id).catch(function(error) {
           console.error(error);
           alert('Erreur lors de la relance');
