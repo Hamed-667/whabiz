@@ -79,6 +79,9 @@ const MYSQL_RESTORE_TEST_INTERVAL_HOURS=Math.max(1,Number(process.env.MYSQL_REST
 const MYSQL_RESTORE_TEST_DB=String(process.env.MYSQL_RESTORE_TEST_DB||`${MYSQL_DATABASE}_restore_test`).trim();
 const MYSQL_PERSIST_QUEUE_MAX_WAIT_MS=Math.max(0,Number(process.env.MYSQL_PERSIST_QUEUE_MAX_WAIT_MS)||5000);
 const MYSQL_PERSIST_QUEUE_TIMEOUT_ALERT_INTERVAL_MS=Math.max(60*1000,Number(process.env.MYSQL_PERSIST_QUEUE_TIMEOUT_ALERT_INTERVAL_MS)||300000);
+const MYSQL_BOOT_RETRY_COUNT=Math.max(1,Number(process.env.MYSQL_BOOT_RETRY_COUNT)||8);
+const MYSQL_BOOT_RETRY_DELAY_MS=Math.max(1000,Number(process.env.MYSQL_BOOT_RETRY_DELAY_MS)||2500);
+const MYSQL_BOOT_RETRY_MAX_DELAY_MS=Math.max(MYSQL_BOOT_RETRY_DELAY_MS,Number(process.env.MYSQL_BOOT_RETRY_MAX_DELAY_MS)||8000);
 
 if(!JWT_SECRET||JWT_SECRET===DEFAULT_JWT_SECRET){
   const msg='JWT_SECRET utilise encore la valeur par defaut';
@@ -1579,6 +1582,46 @@ async function initMySQLStore(){
   console.log(`[MySQL] Storage active on ${MYSQL_DATABASE} (${RELATIONAL_TABLES.join(', ')}) | source=${MYSQL_SOURCE_OF_TRUTH?'mysql':'json'} | jsonMirror=${MYSQL_JSON_MIRROR_WRITES?'on':'off'}`);
 }
 
+function isTransientMySQLStartupError(err){
+  const code=String(err&&err.code||'').trim().toUpperCase();
+  return ['ENOTFOUND','EAI_AGAIN','ECONNREFUSED','ETIMEDOUT','ESOCKET','PROTOCOL_CONNECTION_LOST'].includes(code);
+}
+
+function sleep(ms){
+  return new Promise((resolve)=>setTimeout(resolve,ms));
+}
+
+async function closeMySQLPoolQuietly(){
+  if(!mysqlPool) return;
+  try{
+    await mysqlPool.end();
+  }catch{}
+  mysqlPool=null;
+  mysqlReady=false;
+}
+
+async function initMySQLStoreWithRetry(){
+  if(!MYSQL_ENABLED) return;
+  let lastError=null;
+  for(let attempt=1;attempt<=MYSQL_BOOT_RETRY_COUNT;attempt++){
+    try{
+      await initMySQLStore();
+      return;
+    }catch(err){
+      lastError=err;
+      await closeMySQLPoolQuietly();
+      const transient=isTransientMySQLStartupError(err);
+      if(!transient||attempt>=MYSQL_BOOT_RETRY_COUNT){
+        throw err;
+      }
+      const delay=Math.min(MYSQL_BOOT_RETRY_DELAY_MS*Math.pow(1.5,attempt-1),MYSQL_BOOT_RETRY_MAX_DELAY_MS);
+      console.warn(`[MySQL] Demarrage differe (${attempt}/${MYSQL_BOOT_RETRY_COUNT}) ${err.code||'ERR'}: ${err.message}. Nouvelle tentative dans ${Math.round(delay)}ms.`);
+      await sleep(delay);
+    }
+  }
+  throw lastError||new Error('MySQL startup failed');
+}
+
 function productInput(body){
   const variants=Array.isArray(body.variants)?body.variants.map((v,i)=>({id:txt(v.id||`v-${i+1}`,40),name:txt(v.name||v.nom||`Variant ${i+1}`,80),stock:int(v.stock,0)})).filter((v)=>v.name):[];
   const images=Array.isArray(body.images)?body.images.filter(Boolean).map((x)=>txt(x,300)):(body.image?[txt(body.image,300)]:[]);
@@ -3072,7 +3115,7 @@ app.get('/vendeur/recovery',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','r
 app.get('/:slug',(req,res)=>res.sendFile(path.join(FRONT,'boutique.html')));
 
 async function startServer(){
-  await initMySQLStore();
+  await initMySQLStoreWithRetry();
   startBackupScheduler();
   const server=app.listen(PORT,'0.0.0.0',()=>console.log(`WhaBiz server running on http://localhost:${PORT}`));
   server.on('error',(err)=>{
