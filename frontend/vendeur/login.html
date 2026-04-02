@@ -373,6 +373,33 @@
       }, 5000);
     }
 
+    function shouldShowOnboarding(checklist) {
+      if (!checklist || !Array.isArray(checklist.steps)) return false;
+      var profil = checklist.steps.find(function (step) { return step.id === 'profil'; });
+      var catalogue = checklist.steps.find(function (step) { return step.id === 'catalogue'; });
+      return Boolean((profil && !profil.done) || (catalogue && !catalogue.done));
+    }
+
+    async function resolvePostLoginUrl(data) {
+      var vendeur = data && data.vendeur ? data.vendeur : null;
+      var token = data && data.token ? data.token : '';
+      if (!vendeur || !vendeur.id || !token) return '/vendeur/dashboard';
+
+      var skipped = localStorage.getItem('whabizOnboardingSkipped:' + vendeur.id) === '1';
+      if (skipped) return '/vendeur/dashboard';
+
+      try {
+        var res = await fetch('/api/vendeurs/' + encodeURIComponent(vendeur.id) + '/dashboard?periodDays=30', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) return '/vendeur/dashboard';
+        var payload = await res.json();
+        return shouldShowOnboarding(payload.checklist) ? '/vendeur/onboarding' : '/vendeur/dashboard';
+      } catch (error) {
+        return '/vendeur/dashboard';
+      }
+    }
+
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -410,9 +437,10 @@
         localStorage.setItem('vendeurNom', data.vendeur.nom);
         localStorage.setItem('vendeurBoutique', data.vendeur.boutique);
         localStorage.setItem('whabizLaunchTarget', 'vendeur');
+        var destination = await resolvePostLoginUrl(data);
 
         setTimeout(function() {
-          window.location.href = '/vendeur/dashboard';
+          window.location.href = destination;
         }, 1000);
 
       } catch (error) {

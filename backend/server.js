@@ -3106,6 +3106,7 @@ app.get('/admin',(req,res)=>res.sendFile(path.join(FRONT,'admin.html')));
 app.get('/admin/login',(req,res)=>res.sendFile(path.join(FRONT,'admin-login.html')));
 app.get('/vendeur',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','login.html')));
 app.get('/vendeur/signup',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','signup.html')));
+app.get('/vendeur/onboarding',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','onboarding.html')));
 app.get('/vendeur/dashboard',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','dashboard.html')));
 app.get('/vendeur/orders',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','orders.html')));
 app.get('/vendeur/stats',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','stats.html')));

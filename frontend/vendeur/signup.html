@@ -361,6 +361,7 @@
       localStorage.setItem('vendeurNom', data.vendeur.nom);
       localStorage.setItem('vendeurBoutique', data.vendeur.boutique);
       localStorage.setItem('whabizLaunchTarget', 'vendeur');
+      localStorage.removeItem('whabizOnboardingSkipped:' + data.vendeur.id);
     }
 
     form.addEventListener('submit', async function (event) {
@@ -397,10 +398,10 @@
         }
 
         await loginVendor(payload.tel, payload.password);
-        showAlert('Boutique creee. Ouverture de votre espace vendeur...', 'success');
+        showAlert('Boutique creee. On lance maintenant votre parcours de mise en route...', 'success');
 
         window.setTimeout(function () {
-          window.location.href = '/vendeur/dashboard';
+          window.location.href = '/vendeur/onboarding?welcome=1';
         }, 900);
       } catch (error) {
         showAlert(error.message || 'Inscription impossible', 'error');

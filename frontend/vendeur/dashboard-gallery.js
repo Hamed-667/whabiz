@@ -60,11 +60,24 @@ async function loadData() {
     injectSettingsModalStyles();
 
     displayProducts();
+    handleDashboardEntryAction();
 
   } catch (error) {
     console.error('Erreur:', error);
     alert('Erreur lors du chargement des données');
   }
+}
+
+function handleDashboardEntryAction() {
+  try {
+    var params = new URLSearchParams(window.location.search || '');
+    if (params.get('action') !== 'add-product') return;
+    openAddModal();
+    params.delete('action');
+    params.delete('source');
+    var next = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '') + (window.location.hash || '');
+    window.history.replaceState({}, '', next);
+  } catch (error) {}
 }
 
 function injectSettingsButton() {
