@@ -1882,10 +1882,91 @@ function buildOnboardingChecklist(vendeurId){
   };
 }
 
+function buildVendorClientsPayloadFromOrders(orders){
+  const map=new Map();
+
+  orders.forEach((order)=>{
+    const name=txt(order.clientNom||'Client',100)||'Client';
+    const phone=tel(order.clientTel)||txt(order.clientTel,40);
+    const key=phone?`tel:${phone}`:`name:${name.toLowerCase()}`;
+    const status=normalizeOrderStatus(order.statut);
+    const orderDate=new Date(order.dateCommande||0).getTime()||0;
+
+    if(!map.has(key)){
+      map.set(key,{
+        key,
+        clientNom:name,
+        clientTel:phone||'',
+        ordersCount:0,
+        deliveredOrders:0,
+        pendingOrders:0,
+        totalSpent:0,
+        lastOrderDate:'',
+        lastOrderTs:0,
+        lastOrderId:null,
+        lastOrderStatus:'en_attente',
+        lastOrderTotal:0
+      });
+    }
+
+    const entry=map.get(key);
+    entry.ordersCount+=1;
+    entry.totalSpent+=Number(order.total||0);
+    if(status==='livree') entry.deliveredOrders+=1;
+    if(status==='en_attente'||status==='confirmee'||status==='expediee') entry.pendingOrders+=1;
+    if(orderDate>=entry.lastOrderTs){
+      entry.lastOrderTs=orderDate;
+      entry.lastOrderDate=order.dateCommande||'';
+      entry.lastOrderId=order.id||null;
+      entry.lastOrderStatus=status||'en_attente';
+      entry.lastOrderTotal=Number(order.total||0);
+    }
+  });
+
+  const clients=Array.from(map.values()).map((entry)=>{
+    const needsFollowUp=entry.pendingOrders>0;
+    let segment='nouveau';
+    if(needsFollowUp) segment='a_relancer';
+    else if(entry.ordersCount>=3) segment='fidele';
+    else if(entry.ordersCount>=2) segment='revient';
+
+    return {
+      clientNom:entry.clientNom,
+      clientTel:entry.clientTel,
+      ordersCount:entry.ordersCount,
+      deliveredOrders:entry.deliveredOrders,
+      pendingOrders:entry.pendingOrders,
+      totalSpent:Number(entry.totalSpent.toFixed(2)),
+      lastOrderDate:entry.lastOrderDate,
+      lastOrderId:entry.lastOrderId,
+      lastOrderStatus:entry.lastOrderStatus,
+      lastOrderTotal:Number(entry.lastOrderTotal.toFixed(2)),
+      needsFollowUp,
+      segment
+    };
+  }).sort((a,b)=>{
+    if(Number(b.needsFollowUp)-Number(a.needsFollowUp)!==0) return Number(b.needsFollowUp)-Number(a.needsFollowUp);
+    const dateDelta=(new Date(b.lastOrderDate||0).getTime()||0)-(new Date(a.lastOrderDate||0).getTime()||0);
+    if(dateDelta!==0) return dateDelta;
+    return Number(b.totalSpent||0)-Number(a.totalSpent||0);
+  });
+
+  return {
+    summary:{
+      totalClients:clients.length,
+      repeatClients:clients.filter((client)=>client.ordersCount>=2).length,
+      clientsToFollowUp:clients.filter((client)=>client.needsFollowUp).length,
+      whatsappReachable:clients.filter((client)=>Boolean(client.clientTel)).length
+    },
+    clients
+  };
+}
+
 function computeDashboard(vendeurId,periodDays){
   const orders=read(FILE.orders).filter((o)=>Number(o.vendeurId)===Number(vendeurId));
   const products=read(FILE.products).filter((p)=>Number(p.vendeurId)===Number(vendeurId));
   const analytics=read(FILE.analytics).filter((e)=>Number(e.vendeurId)===Number(vendeurId));
+  const clientsSnapshot=buildVendorClientsPayloadFromOrders(orders);
   const paidStatuses=new Set(['paid']);
   const delivered=orders.filter((o)=>normalizeOrderStatus(o.statut)==='livree');
   const awaitingAction=orders.filter((o)=>{
@@ -1951,6 +2032,8 @@ function computeDashboard(vendeurId,periodDays){
     kpis:{
       products:products.length,
       orders:orders.length,
+      clients:clientsSnapshot.summary.totalClients,
+      clientsToFollowUp:clientsSnapshot.summary.clientsToFollowUp,
       deliveredOrders:delivered.length,
       awaitingActionOrders:awaitingAction.length,
       revenueDelivered,
@@ -2605,6 +2688,21 @@ app.get('/api/vendeurs/:id/dashboard',auth,(req,res)=>{
   });
 });
 
+app.get('/api/vendeurs/:id/clients',auth,async(req,res)=>{
+  const id=num(req.params.id);
+  if(id===null) return res.status(400).json({error:'ID vendeur invalide'});
+  if(!guard(req,res,id)) return;
+  const orders=useDirectSqlForOrdersPayments()
+    ? await sqlLoadOrders({vendeurId:id})
+    : read(FILE.orders).filter((o)=>Number(o.vendeurId)===Number(id));
+  const payload=buildVendorClientsPayloadFromOrders(orders);
+  res.json({
+    vendeurId:id,
+    generatedAt:new Date().toISOString(),
+    ...payload
+  });
+});
+
 app.put('/api/vendeurs/:id',auth,async(req,res)=>{
   const id=num(req.params.id); if(id===null) return res.status(400).json({error:'ID vendeur invalide'});
   if(!guard(req,res,id)) return;
@@ -3109,6 +3207,7 @@ app.get('/vendeur/signup',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','sig
 app.get('/vendeur/onboarding',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','onboarding.html')));
 app.get('/vendeur/dashboard',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','dashboard.html')));
 app.get('/vendeur/orders',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','orders.html')));
+app.get('/vendeur/clients',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','clients.html')));
 app.get('/vendeur/stats',(req,res)=>res.redirect('/vendeur/dashboard'));
 app.get('/vendeur/themes',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','themes.html')));
 app.get('/vendeur/email',(req,res)=>res.redirect('/vendeur/dashboard'));

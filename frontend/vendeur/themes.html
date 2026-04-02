@@ -327,7 +327,7 @@
         <nav class="nav-tabs">
           <a href="/vendeur/dashboard" class="nav-tab">Produits</a>
           <a href="/vendeur/orders" class="nav-tab">Commandes</a>
-          <a href="/vendeur/themes" class="nav-tab active">Themes</a>
+          <a href="/vendeur/clients" class="nav-tab">Clients</a>
         </nav>
       </div>
       <div class="header-right">
@@ -342,7 +342,7 @@
 
     <div class="page-header">
       <h1 class="page-title">Personnalisation de la boutique</h1>
-      <p class="page-subtitle">Choisissez un theme pour votre boutique</p>
+      <p class="page-subtitle">Reglez l'apparence de votre boutique sans encombrer la navigation principale vendeur.</p>
     </div>
 
     <div class="section">
@@ -581,7 +581,7 @@
       }
       var shopUrl = window.location.origin + '/' + vendeurData.slug;
       var shopName = vendeurData.boutique || 'ma boutique';
-      var message = 'Bonjour 👋 Voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
+      var message = 'Bonjour, voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
       window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
     }
 
@@ -601,6 +601,7 @@
       localStorage.removeItem('vendeurId');
       localStorage.removeItem('vendeurNom');
       localStorage.removeItem('vendeurBoutique');
+      localStorage.removeItem('vendeurSlug');
       window.location.href = '/vendeur';
     }
 

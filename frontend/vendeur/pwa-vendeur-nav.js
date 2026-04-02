@@ -1,6 +1,6 @@
 (function () {
   var currentPath = window.location.pathname || '';
-  var rootPages = ['/vendeur/dashboard', '/vendeur/orders', '/vendeur/themes'];
+  var rootPages = ['/vendeur/dashboard', '/vendeur/orders', '/vendeur/clients', '/vendeur/themes'];
 
   if (rootPages.indexOf(currentPath) === -1) return;
 
@@ -16,9 +16,9 @@
       icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 6h13l-1.4 7H8.4L7 6Zm0 0L6.2 3.5H3.5M9 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     },
     {
-      href: '/vendeur/themes',
-      label: 'Themes',
-      icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.5-.4-.9-.9-.9H17a2.5 2.5 0 1 1 0-5h2.6c.5 0 .9-.4.9-.9A8.2 8.2 0 0 0 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7.8" cy="11" r="1" fill="currentColor"/><circle cx="10.5" cy="7.7" r="1" fill="currentColor"/><circle cx="8.4" cy="15" r="1" fill="currentColor"/></svg>'
+      href: '/vendeur/clients',
+      label: 'Clients',
+      icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8.5 10v-2a4 4 0 0 0-3-3.87M14 3.4a4 4 0 0 1 0 7.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     },
     {
       href: '#',
@@ -31,6 +31,7 @@
   var BADGE_REFRESH_INTERVAL_MS = 60000;
   var businessSnapshot = {
     awaitingActionOrders: 0,
+    clientsToFollowUp: 0,
     stockAlerts: [],
     lastUpdatedAt: 0,
     hadError: false
@@ -72,7 +73,7 @@
       showQuickToast('Lien boutique indisponible', 'error');
       return;
     }
-    var message = 'Bonjour 👋 Voici ma boutique ' + getStoredShopName() + ' sur WhaBiz : ' + shopUrl;
+    var message = 'Bonjour, voici ma boutique ' + getStoredShopName() + ' sur WhaBiz : ' + shopUrl;
     window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
   }
 
@@ -157,19 +158,23 @@
       var stockAlerts = Array.isArray(dashboard.stockAlerts) ? dashboard.stockAlerts : [];
 
       businessSnapshot.awaitingActionOrders = Number(kpis.awaitingActionOrders || 0);
+      businessSnapshot.clientsToFollowUp = Number(kpis.clientsToFollowUp || 0);
       businessSnapshot.stockAlerts = stockAlerts.slice(0, 6);
       businessSnapshot.lastUpdatedAt = Date.now();
       businessSnapshot.hadError = false;
 
       setNavBadge('/vendeur/orders', businessSnapshot.awaitingActionOrders, 'success');
+      setNavBadge('/vendeur/clients', businessSnapshot.clientsToFollowUp, 'warning');
       setNavBadge('/vendeur/dashboard', businessSnapshot.stockAlerts.length, 'warning');
       updateNotificationCenter();
     } catch (error) {
       businessSnapshot.awaitingActionOrders = 0;
+      businessSnapshot.clientsToFollowUp = 0;
       businessSnapshot.stockAlerts = [];
       businessSnapshot.lastUpdatedAt = Date.now();
       businessSnapshot.hadError = true;
       setNavBadge('/vendeur/orders', 0);
+      setNavBadge('/vendeur/clients', 0);
       setNavBadge('/vendeur/dashboard', 0);
       updateNotificationCenter();
     }
@@ -266,11 +271,27 @@
       }
     }
 
+    if (currentPath === '/vendeur/clients' && typeof window.refreshClients === 'function') {
+      actions.push({
+        label: 'Actualiser',
+        icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11a8 8 0 1 0 2.2 5.5M20 4v7h-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        onSelect: function () { window.refreshClients(); }
+      });
+    }
+
     if (currentPath === '/vendeur/themes' && typeof window.previewTheme === 'function') {
       actions.push({
         label: 'Previsualiser',
         icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg>',
         onSelect: function () { window.previewTheme(); }
+      });
+    }
+
+    if (currentPath !== '/vendeur/themes') {
+      actions.push({
+        label: 'Personnaliser',
+        icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.5-.4-.9-.9-.9H17a2.5 2.5 0 1 1 0-5h2.6c.5 0 .9-.4.9-.9A8.2 8.2 0 0 0 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7.8" cy="11" r="1" fill="currentColor"/><circle cx="10.5" cy="7.7" r="1" fill="currentColor"/><circle cx="8.4" cy="15" r="1" fill="currentColor"/></svg>',
+        onSelect: function () { window.location.href = '/vendeur/themes'; }
       });
     }
 
@@ -419,12 +440,13 @@
   }
 
   function notificationSummaryCount() {
-    return Number(businessSnapshot.awaitingActionOrders || 0) + businessSnapshot.stockAlerts.length;
+    return Number(businessSnapshot.awaitingActionOrders || 0) + Number(businessSnapshot.clientsToFollowUp || 0) + businessSnapshot.stockAlerts.length;
   }
 
   function buildNotificationRows() {
     var rows = [];
     var ordersPriority = notificationPriority(businessSnapshot.awaitingActionOrders, 'orders');
+    var clientsPriority = notificationPriority(businessSnapshot.clientsToFollowUp, 'orders');
     var stockPriority = notificationPriority(businessSnapshot.stockAlerts.length, 'stock');
 
     if (businessSnapshot.awaitingActionOrders > 0) {
@@ -437,6 +459,21 @@
             '<strong>' + formatBadgeCount(businessSnapshot.awaitingActionOrders) + ' commande(s) a traiter</strong>' +
             '<span class="wb-notify__pill wb-notify__pill--' + ordersPriority.tone + '">' + ordersPriority.label + '</span>' +
             '<span>Ouvrir le suivi des commandes</span>' +
+          '</span>' +
+        '</a>'
+      );
+    }
+
+    if (businessSnapshot.clientsToFollowUp > 0) {
+      rows.push(
+        '<a class="wb-notify__row wb-notify__row--warning" href="/vendeur/clients">' +
+          '<span class="wb-notify__row-icon">' +
+            '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8.5 10v-2a4 4 0 0 0-3-3.87M14 3.4a4 4 0 0 1 0 7.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</span>' +
+          '<span class="wb-notify__row-content">' +
+            '<strong>' + formatBadgeCount(businessSnapshot.clientsToFollowUp) + ' client(s) a relancer</strong>' +
+            '<span class="wb-notify__pill wb-notify__pill--' + clientsPriority.tone + '">' + clientsPriority.label + '</span>' +
+            '<span>Ouvrir le mini CRM vendeur</span>' +
           '</span>' +
         '</a>'
       );
@@ -481,12 +518,14 @@
 
   function buildNotificationSummary() {
     var ordersPriority = notificationPriority(businessSnapshot.awaitingActionOrders, 'orders');
+    var clientsPriority = notificationPriority(businessSnapshot.clientsToFollowUp, 'orders');
     var stockPriority = notificationPriority(businessSnapshot.stockAlerts.length, 'stock');
     var syncText = businessSnapshot.hadError ? 'Derniere synchro partielle' : formatRelativeTime(businessSnapshot.lastUpdatedAt);
 
     return [
       '<div class="wb-notify__summary">',
       '<span class="wb-notify__summary-chip wb-notify__summary-chip--' + ordersPriority.tone + '">Commandes: ' + formatBadgeCount(businessSnapshot.awaitingActionOrders) + '</span>',
+      '<span class="wb-notify__summary-chip wb-notify__summary-chip--' + clientsPriority.tone + '">Clients: ' + formatBadgeCount(businessSnapshot.clientsToFollowUp) + '</span>',
       '<span class="wb-notify__summary-chip wb-notify__summary-chip--' + stockPriority.tone + '">Stock: ' + formatBadgeCount(businessSnapshot.stockAlerts.length) + '</span>',
       '<span class="wb-notify__summary-meta">' + syncText + '</span>',
       '</div>'
@@ -717,3 +756,4 @@
     initBusinessBadges();
   }
 })();
+

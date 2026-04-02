@@ -274,7 +274,7 @@
 
     .welcome-kpis {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
     }
 
@@ -330,6 +330,152 @@
     .welcome-kpi-link .welcome-kpi-value {
       font-size: 17px;
       color: #dfffea;
+    }
+
+    .welcome-kpi-note {
+      font-size: 12px;
+      color: rgba(255,255,255,.54);
+    }
+
+    .crm-panel {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(4,16,28,.34);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .crm-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .crm-panel-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .crm-panel-copy strong {
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .crm-panel-copy span {
+      font-size: 13px;
+      color: rgba(255,255,255,.62);
+    }
+
+    .crm-clients-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .crm-client-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .crm-client-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .crm-client-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .crm-client-phone {
+      font-size: 13px;
+      color: rgba(255,255,255,.62);
+    }
+
+    .crm-client-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.74);
+      white-space: nowrap;
+    }
+
+    .crm-client-tag--follow-up {
+      background: rgba(245,180,59,.16);
+      color: #ffd587;
+    }
+
+    .crm-client-tag--loyal {
+      background: rgba(15,157,88,.18);
+      color: #b8ffd4;
+    }
+
+    .crm-client-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .crm-client-metric {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .crm-client-metric-label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: rgba(255,255,255,.52);
+    }
+
+    .crm-client-metric-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .crm-client-meta {
+      font-size: 13px;
+      color: rgba(255,255,255,.64);
+      line-height: 1.45;
+    }
+
+    .crm-client-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .crm-empty {
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px dashed rgba(255,255,255,.12);
+      color: rgba(255,255,255,.62);
+      font-size: 14px;
     }
 
     .section {
@@ -934,13 +1080,13 @@
         gap: 10px;
       }
 
-      .welcome-kpi:last-child {
-        grid-column: 1 / -1;
-      }
-
       .welcome-kpi {
         padding: 12px 12px;
         border-radius: 14px;
+      }
+
+      .crm-clients-grid {
+        grid-template-columns: 1fr;
       }
 
       .welcome-kpi-value {
@@ -976,6 +1122,10 @@
 
       .section-subtitle {
         font-size: 12px;
+      }
+
+      .crm-client-actions .btn {
+        width: 100%;
       }
 
       .product-card {
@@ -1145,7 +1295,7 @@
         <nav class="nav-tabs">
           <a href="/vendeur/dashboard" class="nav-tab active">📊 Produits</a>
           <a href="/vendeur/orders" class="nav-tab">📦 Commandes</a>
-          <a href="/vendeur/themes" class="nav-tab">🎨 Thèmes</a>
+          <a href="/vendeur/clients" class="nav-tab">👥 Clients</a>
         </nav>
       </div>
       <div class="header-right">
@@ -1169,27 +1319,49 @@
       </div>
 
       <div class="welcome-kpis">
-        <div class="welcome-kpi">
+        <a class="welcome-kpi welcome-kpi-link" href="#productsSection">
           <span class="welcome-kpi-label">Produits</span>
           <strong class="welcome-kpi-value" id="totalProduits">0</strong>
-        </div>
-        <div class="welcome-kpi">
-          <span class="welcome-kpi-label">Plan actuel</span>
-          <strong class="welcome-kpi-value welcome-kpi-value--plan" id="planActuel">-</strong>
-        </div>
+          <span class="welcome-kpi-note">Catalogue actif</span>
+        </a>
+        <a class="welcome-kpi welcome-kpi-link" href="/vendeur/orders" id="ordersHubLink">
+          <span class="welcome-kpi-label">Commandes</span>
+          <strong class="welcome-kpi-value" id="pendingOrdersCount">0</strong>
+          <span class="welcome-kpi-note">A traiter maintenant</span>
+        </a>
+        <a class="welcome-kpi welcome-kpi-link" href="/vendeur/clients" id="clientsHubLink">
+          <span class="welcome-kpi-label">Clients</span>
+          <strong class="welcome-kpi-value" id="totalClientsCount">0</strong>
+          <span class="welcome-kpi-note">Contacts actifs</span>
+        </a>
         <a class="welcome-kpi welcome-kpi-link" id="shopLinkCard" href="#">
-          <span class="welcome-kpi-label">Lien boutique</span>
+          <span class="welcome-kpi-label">Boutique</span>
           <strong class="welcome-kpi-value" id="shopLink">-</strong>
+          <span class="welcome-kpi-note">Lien public</span>
         </a>
       </div>
 
       <div class="welcome-actions-bar">
         <button class="btn btn-whatsapp" type="button" onclick="shareShopOnWhatsApp()">Partager sur WhatsApp</button>
         <button class="btn btn-secondary" type="button" onclick="copyShopLink()">Copier le lien</button>
+        <a class="btn btn-secondary" href="/vendeur/themes">Personnaliser</a>
+      </div>
+
+      <div class="crm-panel">
+        <div class="crm-panel-head">
+          <div class="crm-panel-copy">
+            <strong>Clients WhatsApp a suivre</strong>
+            <span>Relancez vite les bons clients sans quitter votre tableau de bord.</span>
+          </div>
+          <a class="btn btn-secondary" href="/vendeur/clients">Voir tous les clients</a>
+        </div>
+        <div class="crm-clients-grid" id="clientsSpotlight">
+          <div class="crm-empty">Chargement des clients...</div>
+        </div>
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="productsSection">
       <div class="section-header">
         <div class="section-title-row">
           <h2 class="section-title">🛍️ Mes Produits</h2>

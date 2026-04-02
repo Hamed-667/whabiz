@@ -379,7 +379,7 @@
       <nav class="tabs">
         <a href="/vendeur/dashboard" class="tab">Produits</a>
         <a href="/vendeur/orders" class="tab active">Commandes</a>
-        <a href="/vendeur/themes" class="tab">Themes</a>
+        <a href="/vendeur/clients" class="tab">Clients</a>
       </nav>
       <div class="header-actions">
         <button id="shareWhatsappBtn" class="btn" type="button">Partager WhatsApp</button>
@@ -604,6 +604,18 @@
       return rows;
     }
 
+    function applyUrlFilters() {
+      try {
+        var params = new URLSearchParams(window.location.search || '');
+        var clientTel = (params.get('clientTel') || '').trim();
+        var query = (params.get('q') || '').trim();
+        var nextQuery = clientTel || query;
+        if (!nextQuery) return;
+        state.filters.query = nextQuery;
+        document.getElementById('searchInput').value = nextQuery;
+      } catch (error) {}
+    }
+
     function renderOrderCard(order) {
       var safeClient = escapeHtml(order.clientNom || 'Client');
       var safeTel = escapeHtml(order.clientTel || '');
@@ -723,12 +735,6 @@
       }
     }
 
-    function openInvoice(orderId) {
-      var token = localStorage.getItem('vendeurToken') || '';
-      if (!token) return;
-      window.open('/api/orders/' + orderId + '/invoice.pdf?token=' + encodeURIComponent(token), '_blank');
-    }
-
     function contactClient(phone) {
       if (!phone) return;
       var normalized = String(phone).replace(/[^\d]/g, '');
@@ -743,35 +749,8 @@
       }
       var shopUrl = window.location.origin + '/' + state.vendeur.slug;
       var shopName = state.vendeur.boutique || 'ma boutique';
-      var message = 'Bonjour 👋 Voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
+      var message = 'Bonjour, voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
       window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
-    }
-
-    async function downloadOrdersCsv() {
-      if (!state.vendeurId) return;
-      try {
-        var res = await apiFetch('/api/exports/orders.csv?vendeurId=' + encodeURIComponent(state.vendeurId));
-        if (!res.ok) {
-          alert('Export CSV impossible');
-          return;
-        }
-        var blob = await res.blob();
-        var filename = 'orders-' + state.vendeurId + '.csv';
-        var disposition = res.headers.get('content-disposition') || '';
-        var match = disposition.match(/filename=\"?([^\";]+)\"?/i);
-        if (match && match[1]) filename = match[1];
-        var url = URL.createObjectURL(blob);
-        var link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error(error);
-        alert('Export CSV impossible');
-      }
     }
 
     function bindEvents() {
@@ -780,6 +759,7 @@
         localStorage.removeItem('vendeurId');
         localStorage.removeItem('vendeurNom');
         localStorage.removeItem('vendeurBoutique');
+        localStorage.removeItem('vendeurSlug');
         window.location.href = '/vendeur';
       });
 
@@ -864,6 +844,7 @@
         return;
       }
       bindEvents();
+      applyUrlFilters();
       loadData().catch(function(error) {
         console.error(error);
         alert('Erreur lors du chargement des commandes');

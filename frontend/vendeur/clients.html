@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="application-name" content="WhaBiz">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="WhaBiz">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0F9D58">
+  <title>WhaBiz - Clients</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendeur-ui.css">
+  <link rel="stylesheet" href="/pwa-install.css">
+  <link rel="stylesheet" href="/pwa-launch.css">
+  <link rel="stylesheet" href="/pwa-network.css">
+  <link rel="stylesheet" href="/pwa-update.css">
+  <link rel="stylesheet" href="pwa-vendeur-nav.css">
+  <script src="/pwa-install.js" defer></script>
+  <script src="/pwa-launch.js" defer></script>
+  <script src="/pwa-network.js" defer></script>
+  <script src="/pwa-update.js" defer></script>
+  <style>
+    :root{
+      --bg:#0b111c;
+      --panel:#131b2a;
+      --panel-soft:#182234;
+      --line:#27334b;
+      --text:#f4f7ff;
+      --muted:#9eacc8;
+      --brand:#29a36a;
+      --warn:#f5b43b;
+      --danger:#e05f6f;
+      --ok:#35b87a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'DM Sans',sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 480px at 10% -10%,rgba(41,163,106,0.20),transparent 60%),
+        radial-gradient(880px 420px at 100% -20%,rgba(72,108,214,0.22),transparent 60%),
+        var(--bg);
+      min-height:100vh;
+    }
+    .header{
+      position:sticky;
+      top:0;
+      z-index:20;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      backdrop-filter:blur(10px);
+      background:rgba(11,17,28,0.86);
+    }
+    .header-inner{
+      max-width:1260px;
+      margin:0 auto;
+      padding:16px 22px;
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-badge{
+      width:48px;height:48px;border-radius:16px;display:grid;place-items:center;
+      background:linear-gradient(135deg,#0f9d58,#a6f77b);color:#fff;font-weight:800;font-size:24px;
+      box-shadow:0 16px 30px rgba(15,157,88,0.28);
+    }
+    .shop-name{font-family:'Outfit',sans-serif;font-size:26px;font-weight:800}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap}
+    .tab{
+      min-height:42px;padding:0 16px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+      color:var(--muted);text-decoration:none;border:1px solid transparent;background:rgba(255,255,255,0.03);font-weight:700;font-size:14px;
+    }
+    .tab.active{color:#fff;background:rgba(41,163,106,0.16);border-color:rgba(41,163,106,0.35)}
+    .header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .btn{
+      min-height:42px;padding:0 16px;border-radius:999px;border:1px solid transparent;
+      background:rgba(255,255,255,0.08);color:#fff;font-weight:700;font-size:14px;
+      display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-whatsapp{background:linear-gradient(135deg,#25d366,#94f08a);color:#052814}
+    .btn-danger{background:#e05f6f}
+    .layout{max-width:1260px;margin:0 auto;padding:28px 22px 110px}
+    .hero{
+      display:flex;justify-content:space-between;gap:18px;align-items:flex-end;flex-wrap:wrap;
+      margin-bottom:22px;
+    }
+    .hero h1{margin:0 0 8px;font-family:'Outfit',sans-serif;font-size:34px}
+    .hero p{margin:0;color:var(--muted);max-width:620px}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .stats{
+      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px;
+    }
+    .stat{
+      padding:18px;border-radius:22px;background:rgba(19,27,42,0.88);border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 18px 36px rgba(0,0,0,0.16);
+    }
+    .stat .k{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+    .stat .v{font-size:30px;font-family:'Outfit',sans-serif;font-weight:800}
+    .controls{
+      display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px;margin-bottom:18px;
+    }
+    .input,.select{
+      width:100%;min-height:48px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);
+      background:rgba(19,27,42,0.86);color:#fff;padding:0 14px;font:inherit;
+    }
+    .clients{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;
+    }
+    .client{
+      padding:18px;border-radius:24px;background:rgba(19,27,42,0.9);border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 18px 36px rgba(0,0,0,0.16);display:flex;flex-direction:column;gap:14px;
+    }
+    .client-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .client-name{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:0}
+    .client-phone{color:var(--muted);font-size:14px;margin-top:4px}
+    .tag{
+      min-height:28px;padding:0 10px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,0.08);color:#dce6fb;
+    }
+    .tag.follow-up{background:rgba(245,180,59,0.18);color:#ffd587}
+    .tag.loyal{background:rgba(41,163,106,0.20);color:#bff5d1}
+    .client-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .metric{padding:12px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)}
+    .metric .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+    .metric .v{font-size:18px;font-weight:800}
+    .client-meta{
+      display:grid;gap:8px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);
+      color:#dce6fb;font-size:14px;
+    }
+    .status-pill{
+      display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:0 10px;border-radius:999px;
+      font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,0.08);color:#dce6fb;
+    }
+    .status-pill.pending{background:rgba(245,180,59,0.16);color:#ffd587}
+    .status-pill.done{background:rgba(41,163,106,0.18);color:#bff5d1}
+    .client-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .empty{
+      padding:24px;border-radius:22px;background:rgba(19,27,42,0.88);border:1px dashed rgba(255,255,255,0.12);color:var(--muted);
+      text-align:center;
+    }
+    @media (max-width:980px){
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .controls{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width:760px){
+      .header-inner{padding:14px}
+      .layout{padding:22px 14px 110px}
+      .hero{align-items:stretch}
+      .hero h1{font-size:28px}
+      .stats{grid-template-columns:1fr}
+      .controls{grid-template-columns:1fr}
+      .client-actions .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-badge">W</div>
+        <div class="shop-name" id="shopName">Boutique</div>
+      </div>
+      <nav class="tabs">
+        <a href="/vendeur/dashboard" class="tab">Produits</a>
+        <a href="/vendeur/orders" class="tab">Commandes</a>
+        <a href="/vendeur/clients" class="tab active">Clients</a>
+      </nav>
+      <div class="header-actions">
+        <button id="shareWhatsappBtn" class="btn btn-whatsapp" type="button">Partager WhatsApp</button>
+        <a id="viewShop" class="btn" href="#">Voir boutique</a>
+        <button id="logoutBtn" class="btn btn-danger" type="button">Deconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="hero">
+      <div>
+        <h1>Clients</h1>
+        <p>Retrouvez vos contacts, voyez qui relancer et ouvrez WhatsApp en un geste.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="btn" href="/vendeur/orders">Voir les commandes</a>
+        <a class="btn" href="/vendeur/themes">Personnaliser la boutique</a>
+      </div>
+    </section>
+
+    <section class="stats">
+      <article class="stat"><div class="k">Total clients</div><div class="v" id="statClients">0</div></article>
+      <article class="stat"><div class="k">A relancer</div><div class="v" id="statFollowUp">0</div></article>
+      <article class="stat"><div class="k">Clients fideles</div><div class="v" id="statRepeat">0</div></article>
+      <article class="stat"><div class="k">Joignables WhatsApp</div><div class="v" id="statWhatsapp">0</div></article>
+    </section>
+
+    <section class="controls">
+      <input id="searchInput" class="input" type="search" placeholder="Rechercher client, numero ou commande">
+      <select id="segmentFilter" class="select">
+        <option value="all">Tous les clients</option>
+        <option value="a_relancer">A relancer</option>
+        <option value="fidele">Fideles</option>
+        <option value="revient">Reviens souvent</option>
+        <option value="nouveau">Nouveaux</option>
+      </select>
+      <select id="sortFilter" class="select">
+        <option value="recent">Plus recents</option>
+        <option value="amount_desc">Plus depensiers</option>
+        <option value="orders_desc">Plus de commandes</option>
+        <option value="follow_up">Priorite relance</option>
+      </select>
+      <button id="refreshBtn" class="btn" type="button">Actualiser</button>
+    </section>
+
+    <section id="clientsContainer" class="clients">
+      <div class="empty">Chargement des clients...</div>
+    </section>
+  </main>
+
+  <script src="auth-client.js"></script>
+  <script>
+    var apiFetch = window.authFetch || fetch;
+    var state = {
+      vendeurId: null,
+      vendeur: null,
+      clients: [],
+      summary: {},
+      filters: {
+        query: '',
+        segment: 'all',
+        sort: 'recent'
+      }
+    };
+
+    var ORDER_STATUS_LABELS = {
+      en_attente: 'En attente',
+      confirmee: 'Confirmee',
+      expediee: 'Expediee',
+      livree: 'Livree',
+      annulee: 'Annulee'
+    };
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatMoney(value) {
+      return Number(value || 0).toLocaleString('fr-FR') + ' FCFA';
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Aucune commande';
+      var parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return 'Date indisponible';
+      return parsed.toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function segmentLabel(client) {
+      if (!client) return 'Client';
+      if (client.needsFollowUp) return 'A relancer';
+      if (client.segment === 'fidele') return 'Fidele';
+      if (client.segment === 'revient') return 'Revient';
+      return 'Nouveau';
+    }
+
+    function segmentClass(client) {
+      if (!client) return '';
+      if (client.needsFollowUp) return 'follow-up';
+      if (client.segment === 'fidele') return 'loyal';
+      return '';
+    }
+
+    function statusLabel(status) {
+      return ORDER_STATUS_LABELS[String(status || 'en_attente')] || 'En attente';
+    }
+
+    function statusClass(status) {
+      var normalized = String(status || 'en_attente');
+      return normalized === 'livree' ? 'done' : 'pending';
+    }
+
+    function clientOrdersUrl(client) {
+      if (client && client.clientTel) {
+        return '/vendeur/orders?clientTel=' + encodeURIComponent(client.clientTel);
+      }
+      return '/vendeur/orders?q=' + encodeURIComponent((client && client.clientNom) || '');
+    }
+
+    function clientWhatsappUrl(client) {
+      if (!client || !client.clientTel) return '';
+      var number = String(client.clientTel).replace(/[^\d]/g, '');
+      if (!number) return '';
+      var shopName = state.vendeur && state.vendeur.boutique ? state.vendeur.boutique : 'ma boutique';
+      var clientName = String(client.clientNom || '').trim();
+      var message = 'Bonjour' + (clientName ? (' ' + clientName) : '') + ', je vous contacte depuis ' + shopName + ' sur WhaBiz.';
+      return 'https://wa.me/' + number + '?text=' + encodeURIComponent(message);
+    }
+
+    function getFilteredClients() {
+      var query = state.filters.query.trim().toLowerCase();
+      var segment = state.filters.segment;
+      var rows = state.clients.slice().filter(function (client) {
+        var segmentOk = segment === 'all' || (segment === 'a_relancer' ? client.needsFollowUp : client.segment === segment);
+        var haystack = [
+          client.clientNom || '',
+          client.clientTel || '',
+          client.lastOrderId || ''
+        ].join(' ').toLowerCase();
+        var queryOk = !query || haystack.indexOf(query) !== -1;
+        return segmentOk && queryOk;
+      });
+
+      rows.sort(function (a, b) {
+        if (state.filters.sort === 'follow_up') {
+          if (Number(b.needsFollowUp) - Number(a.needsFollowUp) !== 0) return Number(b.needsFollowUp) - Number(a.needsFollowUp);
+        }
+        if (state.filters.sort === 'orders_desc') {
+          return Number(b.ordersCount || 0) - Number(a.ordersCount || 0);
+        }
+        if (state.filters.sort === 'amount_desc') {
+          return Number(b.totalSpent || 0) - Number(a.totalSpent || 0);
+        }
+        return (new Date(b.lastOrderDate || 0).getTime() || 0) - (new Date(a.lastOrderDate || 0).getTime() || 0);
+      });
+
+      return rows;
+    }
+
+    function renderStats() {
+      document.getElementById('statClients').textContent = String((state.summary || {}).totalClients || 0);
+      document.getElementById('statFollowUp').textContent = String((state.summary || {}).clientsToFollowUp || 0);
+      document.getElementById('statRepeat').textContent = String((state.summary || {}).repeatClients || 0);
+      document.getElementById('statWhatsapp').textContent = String((state.summary || {}).whatsappReachable || 0);
+    }
+
+    function renderClientCard(client) {
+      var phone = escapeHtml(client.clientTel || 'Numero indisponible');
+      var whatsappUrl = clientWhatsappUrl(client);
+      return ''
+        + '<article class="client">'
+        +   '<div class="client-top">'
+        +     '<div>'
+        +       '<h2 class="client-name">' + escapeHtml(client.clientNom || 'Client') + '</h2>'
+        +       '<div class="client-phone">' + phone + '</div>'
+        +     '</div>'
+        +     '<span class="tag ' + segmentClass(client) + '">' + escapeHtml(segmentLabel(client)) + '</span>'
+        +   '</div>'
+        +   '<div class="client-metrics">'
+        +     '<div class="metric"><div class="k">Commandes</div><div class="v">' + escapeHtml(String(client.ordersCount || 0)) + '</div></div>'
+        +     '<div class="metric"><div class="k">Depense</div><div class="v">' + escapeHtml(formatMoney(client.totalSpent || 0)) + '</div></div>'
+        +   '</div>'
+        +   '<div class="client-meta">'
+        +     '<span>Derniere commande : #' + escapeHtml(client.lastOrderId || '-') + '</span>'
+        +     '<span>Dernier achat : ' + escapeHtml(formatDate(client.lastOrderDate)) + '</span>'
+        +     '<span class="status-pill ' + statusClass(client.lastOrderStatus) + '">' + escapeHtml(statusLabel(client.lastOrderStatus)) + '</span>'
+        +   '</div>'
+        +   '<div class="client-actions">'
+        +     (whatsappUrl
+              ? '<a class="btn btn-whatsapp" href="' + whatsappUrl + '" target="_blank" rel="noopener">WhatsApp</a>'
+              : '<button class="btn" type="button" disabled>WhatsApp indisponible</button>')
+        +     '<a class="btn" href="' + clientOrdersUrl(client) + '">Voir commandes</a>'
+        +   '</div>'
+        + '</article>';
+    }
+
+    function renderClients() {
+      renderStats();
+      var rows = getFilteredClients();
+      var container = document.getElementById('clientsContainer');
+      if (!rows.length) {
+        container.innerHTML = '<div class="empty">Aucun client pour ce filtre.</div>';
+        return;
+      }
+      container.innerHTML = rows.map(renderClientCard).join('');
+    }
+
+    function shareShopOnWhatsApp() {
+      if (!state.vendeur || !state.vendeur.slug) {
+        alert('Lien boutique indisponible');
+        return;
+      }
+      var shopUrl = window.location.origin + '/' + state.vendeur.slug;
+      var shopName = state.vendeur.boutique || 'ma boutique';
+      var message = 'Bonjour, voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
+      window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
+    }
+
+    async function loadData() {
+      if (!state.vendeurId) return;
+      var vendeurRes = await apiFetch('/api/vendeurs/' + state.vendeurId);
+      if (!vendeurRes.ok) throw new Error('Impossible de charger le vendeur');
+      state.vendeur = await vendeurRes.json();
+      localStorage.setItem('vendeurSlug', state.vendeur.slug || '');
+      localStorage.setItem('vendeurBoutique', state.vendeur.boutique || '');
+      document.getElementById('shopName').textContent = state.vendeur.boutique || 'Boutique';
+      document.getElementById('viewShop').href = '/' + state.vendeur.slug;
+
+      var clientsRes = await apiFetch('/api/vendeurs/' + state.vendeurId + '/clients');
+      if (!clientsRes.ok) throw new Error('Impossible de charger les clients');
+      var payload = await clientsRes.json();
+      state.summary = payload.summary || {};
+      state.clients = Array.isArray(payload.clients) ? payload.clients : [];
+      renderClients();
+    }
+
+    async function refreshClients() {
+      await loadData();
+    }
+    window.refreshClients = refreshClients;
+
+    function bindEvents() {
+      document.getElementById('logoutBtn').addEventListener('click', function () {
+        if (typeof window.clearSession === 'function') window.clearSession();
+        window.location.href = '/vendeur';
+      });
+
+      document.getElementById('shareWhatsappBtn').addEventListener('click', function () {
+        shareShopOnWhatsApp();
+      });
+
+      document.getElementById('refreshBtn').addEventListener('click', function () {
+        refreshClients().catch(function (error) {
+          console.error(error);
+          alert('Erreur de chargement');
+        });
+      });
+
+      document.getElementById('searchInput').addEventListener('input', function (event) {
+        state.filters.query = event.target.value || '';
+        renderClients();
+      });
+
+      document.getElementById('segmentFilter').addEventListener('change', function (event) {
+        state.filters.segment = event.target.value || 'all';
+        renderClients();
+      });
+
+      document.getElementById('sortFilter').addEventListener('change', function (event) {
+        state.filters.sort = event.target.value || 'recent';
+        renderClients();
+      });
+    }
+
+    (function init() {
+      state.vendeurId = localStorage.getItem('vendeurId');
+      if (!state.vendeurId) {
+        window.location.href = '/vendeur';
+        return;
+      }
+      bindEvents();
+      loadData().catch(function (error) {
+        console.error(error);
+        alert('Erreur lors du chargement des clients');
+      });
+    })();
+  </script>
+  <script src="pwa-vendeur-nav.js"></script>
+</body>
+</html>
