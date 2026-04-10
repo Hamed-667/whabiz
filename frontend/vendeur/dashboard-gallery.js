@@ -50,10 +50,6 @@ async function loadData() {
 
     document.getElementById('shopLink').textContent = '/' + vendeurData.slug;
     document.getElementById('viewShop').href = '/' + vendeurData.slug;
-    var shopVisitLink = document.getElementById('shopVisitLink');
-    if (shopVisitLink) {
-      shopVisitLink.href = '/' + vendeurData.slug;
-    }
     var shopLinkCard = document.getElementById('shopLinkCard');
     if (shopLinkCard) {
       shopLinkCard.href = '/' + vendeurData.slug;
@@ -87,22 +83,6 @@ function handleDashboardEntryAction() {
 function getShopUrl() {
   if (!vendeurData || !vendeurData.slug) return '';
   return window.location.origin + '/' + vendeurData.slug;
-}
-
-async function copyShopLink() {
-  var shopUrl = getShopUrl();
-  if (!shopUrl) {
-    alert('Lien boutique indisponible pour le moment.');
-    return;
-  }
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(shopUrl);
-      alert('Lien boutique copie.');
-      return;
-    }
-  } catch (error) {}
-  window.prompt('Copiez le lien de votre boutique', shopUrl);
 }
 
 function shareShopOnWhatsApp() {
