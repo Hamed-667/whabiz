@@ -62,9 +62,7 @@ async function loadData() {
     document.getElementById('pendingOrdersCount').textContent = String((((dashboardSnapshot || {}).dashboard || {}).kpis || {}).awaitingActionOrders || 0);
     document.getElementById('totalClientsCount').textContent = String((((clientSnapshot || {}).summary || {}).totalClients) || 0);
 
-    renderClientsSpotlight();
 
-    // Ajout du bouton de paramètres et du modal
     displayProducts();
     handleDashboardEntryAction();
 
@@ -116,93 +114,6 @@ function shareShopOnWhatsApp() {
   var shopName = vendeurData && vendeurData.boutique ? vendeurData.boutique : 'ma boutique';
   var message = 'Bonjour, voici ma boutique ' + shopName + ' sur WhaBiz : ' + shopUrl;
   window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
-}
-
-function formatCompactMoney(value) {
-  return Number(value || 0).toLocaleString('fr-FR') + ' FCFA';
-}
-
-function formatShortDate(value) {
-  if (!value) return 'Aucune commande';
-  var parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return 'Date indisponible';
-  return parsed.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
-}
-
-function clientSegmentLabel(client) {
-  if (!client) return 'Client';
-  if (client.needsFollowUp) return 'A relancer';
-  if (client.segment === 'fidele') return 'Fidele';
-  if (client.segment === 'revient') return 'Revient';
-  return 'Nouveau';
-}
-
-function clientSegmentClass(client) {
-  if (!client) return '';
-  if (client.needsFollowUp) return ' crm-client-tag--follow-up';
-  if (client.segment === 'fidele') return ' crm-client-tag--loyal';
-  return '';
-}
-
-function clientOrdersUrl(client) {
-  if (!client) return '/vendeur/orders';
-  if (client.clientTel) {
-    return '/vendeur/orders?clientTel=' + encodeURIComponent(client.clientTel);
-  }
-  return '/vendeur/orders?q=' + encodeURIComponent(client.clientNom || '');
-}
-
-function clientWhatsAppUrl(client) {
-  if (!client || !client.clientTel) return '';
-  var tel = String(client.clientTel).replace(/[^\d]/g, '');
-  if (!tel) return '';
-  var shopName = vendeurData && vendeurData.boutique ? vendeurData.boutique : 'ma boutique';
-  var clientName = String(client.clientNom || '').trim();
-  var message = 'Bonjour' + (clientName ? (' ' + clientName) : '') + ', je vous recontacte depuis ' + shopName + ' sur WhaBiz.';
-  return 'https://wa.me/' + tel + '?text=' + encodeURIComponent(message);
-}
-
-function renderClientsSpotlight() {
-  var container = document.getElementById('clientsSpotlight');
-  if (!container) return;
-
-  var clients = Array.isArray((clientSnapshot || {}).clients) ? clientSnapshot.clients.slice() : [];
-  var spotlight = clients.filter(function (client) { return client.needsFollowUp; }).slice(0, 3);
-  if (!spotlight.length) spotlight = clients.slice(0, 3);
-
-  if (!spotlight.length) {
-    container.innerHTML = '<div class="crm-empty">Vos premiers clients apparaitront ici des que vous recevez des commandes.</div>';
-    return;
-  }
-
-  container.innerHTML = spotlight.map(function (client) {
-    var phone = escapeHtml(client.clientTel || 'Numero indisponible');
-    var total = escapeHtml(formatCompactMoney(client.totalSpent || 0));
-    var date = escapeHtml(formatShortDate(client.lastOrderDate));
-    var waUrl = clientWhatsAppUrl(client);
-    var viewOrdersUrl = clientOrdersUrl(client);
-    return ''
-      + '<article class="crm-client-card">'
-      +   '<div class="crm-client-top">'
-      +     '<div>'
-      +       '<div class="crm-client-name">' + escapeHtml(client.clientNom || 'Client') + '</div>'
-      +       '<div class="crm-client-phone">' + phone + '</div>'
-      +     '</div>'
-      +     '<span class="crm-client-tag' + clientSegmentClass(client) + '">' + escapeHtml(clientSegmentLabel(client)) + '</span>'
-      +   '</div>'
-      +   '<div class="crm-client-metrics">'
-      +     '<div class="crm-client-metric"><span class="crm-client-metric-label">Commandes</span><strong class="crm-client-metric-value">' + escapeHtml(String(client.ordersCount || 0)) + '</strong></div>'
-      +     '<div class="crm-client-metric"><span class="crm-client-metric-label">Depense</span><strong class="crm-client-metric-value">' + total + '</strong></div>'
-      +   '</div>'
-      +   '<div class="crm-client-meta">Derniere commande le ' + date + ' · #' + escapeHtml(client.lastOrderId || '-') + '</div>'
-      +   '<div class="crm-client-actions">'
-      +     (waUrl
-          ? '<a class="btn btn-whatsapp" href="' + waUrl + '" target="_blank" rel="noopener">WhatsApp</a>'
-          : '<button class="btn btn-secondary" type="button" disabled>WhatsApp indisponible</button>')
-      +     '<a class="btn btn-secondary" href="' + viewOrdersUrl + '">Voir commandes</a>'
-      +   '</div>'
-      + '</article>';
-  }).join('');
 }
 
 function displayProducts() {
