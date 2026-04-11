@@ -1,4 +1,4 @@
-const CACHE_NAME = 'whabiz-v21';
+const CACHE_NAME = 'whabiz-v22';
 const CORE_ASSETS = [
   '/',
   '/offline.html',
@@ -8,6 +8,9 @@ const CORE_ASSETS = [
   '/boutique-cart.js',
   '/chat-widget.js',
   '/manifest.json',
+  '/privacy',
+  '/terms',
+  '/support',
   '/pwa-install.css',
   '/pwa-install.js',
   '/pwa-launch.css',

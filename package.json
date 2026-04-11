@@ -8,6 +8,7 @@
     "test": "npm --prefix backend run smoke",
     "test:critical": "npm --prefix backend run test:critical",
     "test:ci": "npm run test && npm run test:critical",
+    "launch:check": "npm run preflight && npm run test:ci && npm run db:backup",
     "db:backup": "npm --prefix backend run db:backup",
     "db:restore:last": "npm --prefix backend run db:restore:last",
     "db:restore:test": "npm --prefix backend run db:restore:test",

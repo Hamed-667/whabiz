@@ -137,6 +137,15 @@ const PAYMENT_PROVIDER_META={
   moov_money:{label:'Moov Money',kind:'mobile_money'},
   wave:{label:'Wave',kind:'mobile_money'}
 };
+const DEFAULT_VENDOR_PAYMENT_METHODS=['cash_on_delivery','orange_money'];
+const DEFAULT_VENDOR_DELIVERY={
+  mode:'pickup_and_delivery',
+  fee:0,
+  freeAbove:0,
+  eta:'24h',
+  zones:'Bobo-Dioulasso',
+  instructions:''
+};
 
 [DATA,BACKUPS,PROD_UPLOADS,FRONT_UPLOADS].forEach((d)=>fs.mkdirSync(d,{recursive:true}));
 Object.values(FILE).forEach((f)=>{ if(!fs.existsSync(f)) fs.writeFileSync(f,'[]'); });
@@ -575,7 +584,16 @@ const int=(v,d=0)=>{const n=parseInt(String(v),10);return Number.isFinite(n)&&n>
 const tel=(v)=>String(v||'').replace(/[^\d]/g,'');
 const txt=(v,m=300)=>String(v||'').replace(/[<>]/g,'').replace(/\s+/g,' ').trim().slice(0,m);
 const slugify=(v)=>{const b=String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').replace(/-{2,}/g,'-');return b||`boutique-${Date.now()}`};
-const sv=(v)=>{if(!v)return null;const c={...v};delete c.password;delete c.motdepasse;return c};
+const sv=(v)=>{
+  if(!v) return null;
+  const c={...v};
+  delete c.password;
+  delete c.motdepasse;
+  c.paymentMethods=normalizeVendorPaymentMethods(c.paymentMethods);
+  c.delivery=normalizeVendorDelivery(c.delivery);
+  c.support=normalizeVendorSupport(c.support,c);
+  return c;
+};
 const pwdHash=(v)=>v?(v.motdepasse||v.password||''):'';
 const sig=(p,expiresIn='24h')=>jwt.sign(p,JWT_SECRET,{expiresIn});
 const rid=()=>`${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
@@ -1746,6 +1764,57 @@ function allowedNextOrderStatuses(status){
   return [current,...(ORDER_STATUS_TRANSITIONS[current]||[])];
 }
 
+function normalizeVendorPaymentMethods(value){
+  const raw=Array.isArray(value)?value:[];
+  const methods=[...new Set(raw.map((item)=>normalizePaymentMethod(item)).filter((item)=>PAYMENT_METHODS.includes(item)))];
+  return methods.length?methods:DEFAULT_VENDOR_PAYMENT_METHODS.slice();
+}
+
+function normalizeVendorDelivery(value){
+  const source=value&&typeof value==='object'?value:{};
+  const allowedModes=['pickup_only','delivery_only','pickup_and_delivery'];
+  const mode=allowedModes.includes(String(source.mode||''))?String(source.mode):DEFAULT_VENDOR_DELIVERY.mode;
+  const fee=Math.max(0,toFiniteNumber(source.fee,DEFAULT_VENDOR_DELIVERY.fee));
+  const freeAbove=Math.max(0,toFiniteNumber(source.freeAbove,DEFAULT_VENDOR_DELIVERY.freeAbove));
+  return {
+    mode,
+    fee,
+    freeAbove,
+    eta:txt(source.eta,120)||DEFAULT_VENDOR_DELIVERY.eta,
+    zones:txt(source.zones,220)||DEFAULT_VENDOR_DELIVERY.zones,
+    instructions:txt(source.instructions,320)||DEFAULT_VENDOR_DELIVERY.instructions
+  };
+}
+
+function normalizeVendorSupport(value,vendeur=null){
+  const source=value&&typeof value==='object'?value:{};
+  return {
+    phone:tel(source.phone||(vendeur&&vendeur.tel)||''),
+    email:txt(source.email||(vendeur&&vendeur.email)||'',150).toLowerCase(),
+    whatsapp:source.whatsapp!==undefined?Boolean(source.whatsapp):true
+  };
+}
+
+function normalizeOrderDelivery(value,vendeur=null){
+  const source=value&&typeof value==='object'?value:{};
+  const vendorDelivery=normalizeVendorDelivery(vendeur&&vendeur.delivery);
+  const allowedMethods=['pickup','delivery'];
+  let method=allowedMethods.includes(String(source.method||''))?String(source.method):'delivery';
+  if(vendorDelivery.mode==='pickup_only') method='pickup';
+  if(vendorDelivery.mode==='delivery_only') method='delivery';
+  const feeInput=toFiniteNumber(source.fee,vendorDelivery.fee);
+  const fee=Math.max(0,feeInput);
+  return {
+    method,
+    fee,
+    eta:txt(source.eta,120)||vendorDelivery.eta,
+    zone:txt(source.zone,220)||vendorDelivery.zones,
+    address:txt(source.address,320),
+    city:txt(source.city,120),
+    instructions:txt(source.instructions,320)||vendorDelivery.instructions
+  };
+}
+
 function normalizePaymentMethod(method,provider){
   const m=txt(method||'',60).toLowerCase();
   const p=txt(provider||'',60).toLowerCase();
@@ -2653,6 +2722,9 @@ app.post('/api/vendeurs',signupLimiter,antispam,async(req,res)=>{
     dateInscription:new Date().toISOString(),
     actif:true,
     theme:txt(req.body.theme||'dark-green',60),
+    paymentMethods:normalizeVendorPaymentMethods(req.body.paymentMethods),
+    delivery:normalizeVendorDelivery(req.body.delivery),
+    support:normalizeVendorSupport(req.body.support,{tel:phone,email}),
     motdepasse:hash,
     password:hash,
     tokenVersion:1,
@@ -2714,10 +2786,13 @@ app.put('/api/vendeurs/:id',auth,async(req,res)=>{
   if(req.body.produits!==undefined) next.produits=txt(req.body.produits,300);
   if(req.body.theme!==undefined) next.theme=txt(req.body.theme,60)||cur.theme;
   if(req.body.shopLayout!==undefined) next.shopLayout=txt(req.body.shopLayout,20)||cur.shopLayout;
+  if(req.body.paymentMethods!==undefined) next.paymentMethods=normalizeVendorPaymentMethods(req.body.paymentMethods);
+  if(req.body.delivery!==undefined) next.delivery=normalizeVendorDelivery(req.body.delivery);
   if(req.body.actif!==undefined) next.actif=Boolean(req.body.actif);
   if(req.body.slug!==undefined){let s=slugify(req.body.slug),i=1;while(vendeurs.some((v)=>v.id!==id&&v.slug===s))s=`${slugify(req.body.slug)}-${i++}`;next.slug=s;}
   if(req.body.tel!==undefined){const p=tel(req.body.tel); if(!p) return res.status(400).json({error:'Numero WhatsApp invalide'}); if(vendeurs.some((v)=>v.id!==id&&tel(v.tel)===p)) return res.status(409).json({error:'Ce numero WhatsApp est deja utilise'}); next.tel=p;}
   if(req.body.email!==undefined){const e=txt(req.body.email,150).toLowerCase(); if(e&&vendeurs.some((v)=>v.id!==id&&String(v.email||'').toLowerCase()===e)) return res.status(409).json({error:'Cet email est deja utilise'}); next.email=e;}
+  if(req.body.support!==undefined) next.support=normalizeVendorSupport(req.body.support,{...next});
   if(req.body.motdepasse||req.body.password){
     const p=String(req.body.motdepasse||req.body.password);
     if(!isStrongPassword(p)) return res.status(400).json({error:'Mot de passe trop faible (8+ caracteres avec lettres et chiffres)'});
@@ -2877,9 +2952,11 @@ app.post('/api/orders',orderLimiter,antispam,async(req,res)=>{
   const totalCalc=items.reduce((s,it)=>s+it.prix*it.quantity,0);
   const total=num(req.body.total);
   const paymentMethod=normalizePaymentMethod(req.body.paymentMethod||'cash_on_delivery');
+  const delivery=normalizeOrderDelivery(req.body.delivery,vendeur);
   const order={
     id:Date.now(),vendeurId,clientNom:txt(req.body.clientNom||'Client',100),clientTel:txt(req.body.clientTel,40),items,
-    total:total===null?totalCalc:total,statut:'en_attente',dateCommande:new Date().toISOString(),notes:txt(req.body.notes,600),
+    total:total===null?totalCalc+Number(delivery.fee||0):total,statut:'en_attente',dateCommande:new Date().toISOString(),notes:txt(req.body.notes,600),
+    delivery,
     payment:{method:paymentMethod,provider:paymentMethod==='cash_on_delivery'?'manual':'mock-gateway',status:'pending',reference:null,updatedAt:new Date().toISOString()}
   };
 
@@ -3200,6 +3277,9 @@ app.use((err,req,res,next)=>{
 });
 
 app.get('/',(req,res)=>res.sendFile(path.join(FRONT,'index.html')));
+app.get('/privacy',(req,res)=>res.sendFile(path.join(FRONT,'privacy.html')));
+app.get('/terms',(req,res)=>res.sendFile(path.join(FRONT,'terms.html')));
+app.get('/support',(req,res)=>res.sendFile(path.join(FRONT,'support.html')));
 app.get('/admin',(req,res)=>res.sendFile(path.join(FRONT,'admin.html')));
 app.get('/admin/login',(req,res)=>res.sendFile(path.join(FRONT,'admin-login.html')));
 app.get('/vendeur',(req,res)=>res.sendFile(path.join(FRONT,'vendeur','login.html')));

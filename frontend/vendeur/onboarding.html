@@ -532,6 +532,51 @@
               <label class="label" for="profileEmail">Email</label>
               <input class="input" id="profileEmail" type="email" maxlength="150">
             </div>
+            <div class="field">
+              <label class="label" for="supportPhone">Numero support</label>
+              <input class="input" id="supportPhone" type="tel" maxlength="40" placeholder="WhatsApp support">
+            </div>
+            <div class="field">
+              <label class="label" for="supportEmail">Email support</label>
+              <input class="input" id="supportEmail" type="email" maxlength="150" placeholder="support@boutique.com">
+            </div>
+            <div class="field full">
+              <label class="label">Moyens de paiement proposes</label>
+              <div class="mini-actions" id="paymentMethodsGroup">
+                <label class="btn btn-ghost"><input type="checkbox" value="cash_on_delivery" checked> Paiement a la livraison</label>
+                <label class="btn btn-ghost"><input type="checkbox" value="orange_money" checked> Orange Money</label>
+                <label class="btn btn-ghost"><input type="checkbox" value="moov_money"> Moov Money</label>
+                <label class="btn btn-ghost"><input type="checkbox" value="wave"> Wave</label>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="deliveryMode">Livraison</label>
+              <select class="input" id="deliveryMode">
+                <option value="pickup_and_delivery">Retrait + livraison</option>
+                <option value="delivery_only">Livraison seulement</option>
+                <option value="pickup_only">Retrait seulement</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="label" for="deliveryFee">Frais de livraison (FCFA)</label>
+              <input class="input" id="deliveryFee" type="number" min="0" step="100" value="0">
+            </div>
+            <div class="field">
+              <label class="label" for="deliveryFreeAbove">Livraison offerte a partir de</label>
+              <input class="input" id="deliveryFreeAbove" type="number" min="0" step="500" value="0">
+            </div>
+            <div class="field">
+              <label class="label" for="deliveryEta">Delai indicatif</label>
+              <input class="input" id="deliveryEta" type="text" maxlength="120" placeholder="Ex: 24h">
+            </div>
+            <div class="field full">
+              <label class="label" for="deliveryZones">Zone de livraison</label>
+              <input class="input" id="deliveryZones" type="text" maxlength="220" placeholder="Ex: Bobo-Dioulasso et environs">
+            </div>
+            <div class="field full">
+              <label class="label" for="deliveryInstructions">Instruction courte</label>
+              <input class="input" id="deliveryInstructions" type="text" maxlength="320" placeholder="Ex: Livraison a domicile entre 9h et 18h">
+            </div>
             <div class="field full">
               <button class="btn btn-primary" type="submit" id="profileSubmit">Enregistrer mon profil</button>
             </div>
@@ -597,6 +642,10 @@
     var vendeurData = null;
     var dashboardData = null;
 
+    function getApiFetch() {
+      return window.authFetch || fetch;
+    }
+
     var stepActions = {
       profil: { label: 'Completer maintenant', href: '#profileForm' },
       catalogue: { label: 'Ajouter un produit', href: '/vendeur/dashboard?action=add-product&source=onboarding' },
@@ -632,6 +681,19 @@
       localStorage.setItem('vendeurNom', vendeur.nom || '');
       localStorage.setItem('vendeurBoutique', vendeur.boutique || '');
       localStorage.setItem('vendeurSlug', vendeur.slug || '');
+    }
+
+    function setPaymentMethods(methods) {
+      var selected = Array.isArray(methods) && methods.length ? methods : ['cash_on_delivery', 'orange_money'];
+      Array.prototype.slice.call(document.querySelectorAll('#paymentMethodsGroup input[type="checkbox"]')).forEach(function (input) {
+        input.checked = selected.indexOf(input.value) >= 0;
+      });
+    }
+
+    function getSelectedPaymentMethods() {
+      return Array.prototype.slice.call(document.querySelectorAll('#paymentMethodsGroup input[type="checkbox"]'))
+        .filter(function (input) { return input.checked; })
+        .map(function (input) { return input.value; });
     }
 
     function renderHero() {
@@ -709,10 +771,21 @@
 
     function renderProfileForm() {
       if (!vendeurData) return;
+      var support = vendeurData.support || {};
+      var delivery = vendeurData.delivery || {};
       document.getElementById('profileNom').value = vendeurData.nom || '';
       document.getElementById('profileBoutique').value = vendeurData.boutique || '';
       document.getElementById('profileTel').value = vendeurData.tel || '';
       document.getElementById('profileEmail').value = vendeurData.email || '';
+      document.getElementById('supportPhone').value = support.phone || vendeurData.tel || '';
+      document.getElementById('supportEmail').value = support.email || vendeurData.email || '';
+      document.getElementById('deliveryMode').value = delivery.mode || 'pickup_and_delivery';
+      document.getElementById('deliveryFee').value = Number(delivery.fee || 0);
+      document.getElementById('deliveryFreeAbove').value = Number(delivery.freeAbove || 0);
+      document.getElementById('deliveryEta').value = delivery.eta || '24h';
+      document.getElementById('deliveryZones').value = delivery.zones || 'Bobo-Dioulasso';
+      document.getElementById('deliveryInstructions').value = delivery.instructions || '';
+      setPaymentMethods(vendeurData.paymentMethods || ['cash_on_delivery', 'orange_money']);
     }
 
     function renderShopLink() {
@@ -757,8 +830,26 @@
           nom: document.getElementById('profileNom').value.trim(),
           boutique: document.getElementById('profileBoutique').value.trim(),
           tel: document.getElementById('profileTel').value.trim(),
-          email: document.getElementById('profileEmail').value.trim()
+          email: document.getElementById('profileEmail').value.trim(),
+          paymentMethods: getSelectedPaymentMethods(),
+          support: {
+            phone: document.getElementById('supportPhone').value.trim(),
+            email: document.getElementById('supportEmail').value.trim(),
+            whatsapp: true
+          },
+          delivery: {
+            mode: document.getElementById('deliveryMode').value,
+            fee: Number(document.getElementById('deliveryFee').value || 0),
+            freeAbove: Number(document.getElementById('deliveryFreeAbove').value || 0),
+            eta: document.getElementById('deliveryEta').value.trim(),
+            zones: document.getElementById('deliveryZones').value.trim(),
+            instructions: document.getElementById('deliveryInstructions').value.trim()
+          }
         };
+
+        if (!payload.paymentMethods.length) {
+          throw new Error('Choisissez au moins un moyen de paiement');
+        }
 
         var res = await getApiFetch()('/api/vendeurs/' + vendeurId, {
           method: 'PUT',
@@ -807,6 +898,3 @@
   </script>
 </body>
 </html>
-    function getApiFetch() {
-      return window.authFetch || fetch;
-    }

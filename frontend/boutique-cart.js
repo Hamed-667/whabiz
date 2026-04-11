@@ -19,7 +19,16 @@ var clientNom = localStorage.getItem('clientNom_' + slug) || '';
 var filtersInitialized = false;
 var cartSyncTimer = null;
 var analyticsSession = localStorage.getItem('analyticsSession') || ('sess_' + Date.now() + '_' + Math.random().toString(16).slice(2));
+var clientCity = localStorage.getItem('clientCity_' + slug) || '';
+var clientAddress = localStorage.getItem('clientAddress_' + slug) || '';
+var clientNotes = localStorage.getItem('clientNotes_' + slug) || '';
 localStorage.setItem('analyticsSession', analyticsSession);
+var PAYMENT_LABELS = {
+  cash_on_delivery: 'Paiement a la livraison',
+  orange_money: 'Orange Money',
+  moov_money: 'Moov Money',
+  wave: 'Wave'
+};
 function pickAvailableVariant(product) {
   if (!product || !Array.isArray(product.variants) || product.variants.length === 0) return null;
   return product.variants.find(function(v) { return Number(v.stock || 0) > 0; }) || product.variants[0];
@@ -52,6 +61,50 @@ function trackEvent(eventName, metadata) {
   } catch (e) {}
 }
 
+function getVendorPaymentMethods() {
+  if (!vendeurData || !Array.isArray(vendeurData.paymentMethods) || !vendeurData.paymentMethods.length) {
+    return ['cash_on_delivery', 'orange_money'];
+  }
+  return vendeurData.paymentMethods.slice();
+}
+
+function getVendorDeliveryConfig() {
+  var delivery = vendeurData && vendeurData.delivery && typeof vendeurData.delivery === 'object' ? vendeurData.delivery : {};
+  return {
+    mode: String(delivery.mode || 'pickup_and_delivery'),
+    fee: Math.max(0, Number(delivery.fee || 0)),
+    freeAbove: Math.max(0, Number(delivery.freeAbove || 0)),
+    eta: String(delivery.eta || '24h'),
+    zones: String(delivery.zones || 'Votre ville'),
+    instructions: String(delivery.instructions || '')
+  };
+}
+
+function getPaymentLabel(method) {
+  return PAYMENT_LABELS[String(method || '')] || 'Paiement';
+}
+
+function getDeliveryOptions() {
+  var delivery = getVendorDeliveryConfig();
+  if (delivery.mode === 'pickup_only') {
+    return [{ value: 'pickup', label: 'Retrait boutique', hint: 'Le client recupere sa commande.' }];
+  }
+  if (delivery.mode === 'delivery_only') {
+    return [{ value: 'delivery', label: 'Livraison', hint: 'Livraison dans ' + delivery.zones + '.' }];
+  }
+  return [
+    { value: 'delivery', label: 'Livraison', hint: 'Livraison dans ' + delivery.zones + '.' },
+    { value: 'pickup', label: 'Retrait boutique', hint: 'Le client recupere sa commande.' }
+  ];
+}
+
+function computeDeliveryFee(subtotal, method) {
+  if (method !== 'delivery') return 0;
+  var delivery = getVendorDeliveryConfig();
+  if (delivery.freeAbove > 0 && subtotal >= delivery.freeAbove) return 0;
+  return Math.max(0, Number(delivery.fee || 0));
+}
+
 
 function loadCartFromStorage() {
   var stored = localStorage.getItem('cart_' + slug);
@@ -65,6 +118,9 @@ function loadCartFromStorage() {
   cartUpdatedAt = Number(localStorage.getItem('cartUpdatedAt_' + slug)) || 0;
   clientTel = localStorage.getItem('clientTel_' + slug) || '';
   clientNom = localStorage.getItem('clientNom_' + slug) || '';
+  clientCity = localStorage.getItem('clientCity_' + slug) || '';
+  clientAddress = localStorage.getItem('clientAddress_' + slug) || '';
+  clientNotes = localStorage.getItem('clientNotes_' + slug) || '';
   updateCartBadge();
 }
 
@@ -142,6 +198,96 @@ function renderCartProfileSection() {
     '</div>' +
     '<div class="cart-profile-hint">' + hint + '</div>' +
     '</div>';
+}
+
+function renderCheckoutSection(subtotal) {
+  var paymentMethods = getVendorPaymentMethods();
+  var deliveryOptions = getDeliveryOptions();
+  var defaultDelivery = deliveryOptions[0] ? deliveryOptions[0].value : 'delivery';
+  var savedDeliveryMethod = localStorage.getItem('clientDeliveryMethod_' + slug) || defaultDelivery;
+  var deliveryMethod = deliveryOptions.some(function(option) { return option.value === savedDeliveryMethod; }) ? savedDeliveryMethod : defaultDelivery;
+  var savedPaymentMethod = localStorage.getItem('clientPaymentMethod_' + slug) || paymentMethods[0] || 'cash_on_delivery';
+  var paymentMethod = paymentMethods.indexOf(savedPaymentMethod) >= 0 ? savedPaymentMethod : (paymentMethods[0] || 'cash_on_delivery');
+  var deliveryFee = computeDeliveryFee(subtotal, deliveryMethod);
+  var total = subtotal + deliveryFee;
+  var delivery = getVendorDeliveryConfig();
+  var deliveryOptionsHtml = deliveryOptions.map(function(option) {
+    var checked = option.value === deliveryMethod ? ' checked' : '';
+    return '<label class="checkout-option"><input type="radio" name="checkoutDeliveryMethod" value="' + option.value + '"' + checked + '><span><strong>' + option.label + '</strong><small>' + option.hint + '</small></span></label>';
+  }).join('');
+  var paymentOptionsHtml = paymentMethods.map(function(method) {
+    var checked = method === paymentMethod ? ' checked' : '';
+    return '<label class="checkout-option"><input type="radio" name="checkoutPaymentMethod" value="' + method + '"' + checked + '><span><strong>' + getPaymentLabel(method) + '</strong><small>' + (method === 'cash_on_delivery' ? 'Paiement au moment de la remise.' : 'Validation mobile money avant confirmation finale.') + '</small></span></label>';
+  }).join('');
+
+  return ''
+    + '<div class="checkout-panel">'
+    +   '<div class="checkout-panel-title">Validation de commande</div>'
+    +   '<div class="checkout-panel-subtitle">Confirmez votre WhatsApp, choisissez paiement et livraison, puis envoyez la commande.</div>'
+    +   '<div class="checkout-grid">'
+    +     '<div class="checkout-field">'
+    +       '<label class="checkout-label" for="checkoutClientNom">Nom complet</label>'
+    +       '<input type="text" class="checkout-input" id="checkoutClientNom" value="' + (clientNom || '') + '" placeholder="Votre nom" required>'
+    +     '</div>'
+    +     '<div class="checkout-field">'
+    +       '<label class="checkout-label" for="checkoutClientTel">WhatsApp</label>'
+    +       '<input type="tel" class="checkout-input" id="checkoutClientTel" value="' + (clientTel || '') + '" placeholder="Numero WhatsApp" required>'
+    +     '</div>'
+    +     '<div class="checkout-field">'
+    +       '<label class="checkout-label" for="checkoutClientCity">Ville</label>'
+    +       '<input type="text" class="checkout-input" id="checkoutClientCity" value="' + (clientCity || '') + '" placeholder="Ex: Bobo-Dioulasso">'
+    +     '</div>'
+    +     '<div class="checkout-field checkout-field--full">'
+    +       '<label class="checkout-label" for="checkoutClientAddress">Adresse / quartier</label>'
+    +       '<textarea class="checkout-input checkout-textarea" id="checkoutClientAddress" placeholder="Precisez le quartier, la rue ou un point de repere">' + (clientAddress || '') + '</textarea>'
+    +     '</div>'
+    +     '<div class="checkout-field checkout-field--full">'
+    +       '<label class="checkout-label">Mode de livraison</label>'
+    +       '<div class="checkout-options checkout-options--delivery">' + deliveryOptionsHtml + '</div>'
+    +       '<div class="checkout-helper">' + (delivery.instructions ? delivery.instructions + ' ' : '') + 'Zone desservie: ' + delivery.zones + '. Delai indicatif: ' + delivery.eta + '.</div>'
+    +     '</div>'
+    +     '<div class="checkout-field checkout-field--full">'
+    +       '<label class="checkout-label">Mode de paiement</label>'
+    +       '<div class="checkout-options">' + paymentOptionsHtml + '</div>'
+    +     '</div>'
+    +     '<div class="checkout-field checkout-field--full">'
+    +       '<label class="checkout-label" for="checkoutNotes">Note pour la boutique</label>'
+    +       '<textarea class="checkout-input checkout-textarea" id="checkoutNotes" placeholder="Couleur souhaitee, heure de livraison, precision utile...">' + (clientNotes || '') + '</textarea>'
+    +     '</div>'
+    +   '</div>'
+    +   '<div class="checkout-summary">'
+    +     '<div class="checkout-summary-row"><span>Sous-total</span><strong>' + subtotal.toLocaleString('fr-FR') + ' FCFA</strong></div>'
+    +     '<div class="checkout-summary-row"><span>Livraison</span><strong id="checkoutDeliveryFee">' + deliveryFee.toLocaleString('fr-FR') + ' FCFA</strong></div>'
+    +     '<div class="checkout-summary-row checkout-summary-row--total"><span>Total a confirmer</span><strong id="checkoutGrandTotal">' + total.toLocaleString('fr-FR') + ' FCFA</strong></div>'
+    +   '</div>'
+    + '</div>';
+}
+
+function syncCheckoutUi(subtotal) {
+  var deliveryInputs = document.querySelectorAll('input[name="checkoutDeliveryMethod"]');
+  if (!deliveryInputs.length) return;
+
+  function update() {
+    var deliveryInput = document.querySelector('input[name="checkoutDeliveryMethod"]:checked');
+    var method = deliveryInput ? deliveryInput.value : 'delivery';
+    var deliveryFee = computeDeliveryFee(subtotal, method);
+    var total = subtotal + deliveryFee;
+    var feeNode = document.getElementById('checkoutDeliveryFee');
+    var totalNode = document.getElementById('checkoutGrandTotal');
+    var address = document.getElementById('checkoutClientAddress');
+    if (feeNode) feeNode.textContent = deliveryFee.toLocaleString('fr-FR') + ' FCFA';
+    if (totalNode) totalNode.textContent = total.toLocaleString('fr-FR') + ' FCFA';
+    if (address) {
+      var pickup = method === 'pickup';
+      address.disabled = pickup;
+      address.placeholder = pickup ? 'Le retrait boutique ne demande pas d adresse.' : 'Precisez le quartier, la rue ou un point de repere';
+    }
+  }
+
+  Array.prototype.forEach.call(deliveryInputs, function(input) {
+    input.addEventListener('change', update);
+  });
+  update();
 }
 
 function saveClientTel() {
@@ -302,8 +448,10 @@ function displayCart() {
   html += '</div>';
 
   html += renderCartProfileSection();
+  html += renderCheckoutSection(total);
   
   container.innerHTML = html;
+  syncCheckoutUi(total);
 }
 
 
@@ -345,42 +493,72 @@ function clearCart() {
 
 async function orderAll() {
   if (!vendeurData || cart.length === 0) return;
-  
-  
-  var savedName = localStorage.getItem('clientNom_' + slug) || '';
-  var clientNomInput = prompt('Votre nom (obligatoire) :', savedName);
-  var clientNom = clientNomInput ? clientNomInput.trim() : '';
-  if (!clientNom || clientNom.trim() === '') {
+
+  var clientNomField = document.getElementById('checkoutClientNom');
+  var clientTelField = document.getElementById('checkoutClientTel');
+  var clientCityField = document.getElementById('checkoutClientCity');
+  var clientAddressField = document.getElementById('checkoutClientAddress');
+  var clientNotesField = document.getElementById('checkoutNotes');
+  var paymentInput = document.querySelector('input[name="checkoutPaymentMethod"]:checked');
+  var deliveryInput = document.querySelector('input[name="checkoutDeliveryMethod"]:checked');
+  var clientNomValue = clientNomField ? clientNomField.value.trim() : '';
+  var cleanedTel = normalizeTel(clientTelField ? clientTelField.value : '');
+  var deliveryMethod = deliveryInput ? deliveryInput.value : 'delivery';
+  var paymentMethod = paymentInput ? paymentInput.value : 'cash_on_delivery';
+  var cityValue = clientCityField ? clientCityField.value.trim() : '';
+  var addressValue = clientAddressField ? clientAddressField.value.trim() : '';
+  var notesValue = clientNotesField ? clientNotesField.value.trim() : '';
+
+  if (!clientNomValue) {
     alert('Le nom est obligatoire');
     return;
   }
-  
-  var savedTel = clientTel || localStorage.getItem('clientTel_' + slug) || '';
-  var clientTelInput = prompt('Votre numero WhatsApp (obligatoire) :', savedTel);
-  var cleanedTel = normalizeTel(clientTelInput);
   if (!cleanedTel) {
     alert('Le numero WhatsApp est obligatoire');
     return;
   }
+  if (deliveryMethod === 'delivery' && !addressValue) {
+    alert('L adresse de livraison est obligatoire');
+    return;
+  }
+
   clientTel = cleanedTel;
-  clientNom = clientNom.trim();
+  clientNom = clientNomValue;
+  clientCity = cityValue;
+  clientAddress = addressValue;
+  clientNotes = notesValue;
   localStorage.setItem('clientNom_' + slug, clientNom);
   localStorage.setItem('clientTel_' + slug, clientTel);
+  localStorage.setItem('clientCity_' + slug, clientCity);
+  localStorage.setItem('clientAddress_' + slug, clientAddress);
+  localStorage.setItem('clientNotes_' + slug, clientNotes);
+  localStorage.setItem('clientPaymentMethod_' + slug, paymentMethod);
+  localStorage.setItem('clientDeliveryMethod_' + slug, deliveryMethod);
 
-  var paymentChoice = prompt('Mode de paiement: 1 = a la livraison, 2 = mobile money', '1');
-  var paymentMethod = String(paymentChoice || '1').trim() === '2' ? 'mobile_money' : 'cash_on_delivery';
-
-  var total = cart.reduce(function(sum, item) {
+  var subtotal = cart.reduce(function(sum, item) {
     return sum + (item.prix * item.quantity);
   }, 0);
+  var deliveryFee = computeDeliveryFee(subtotal, deliveryMethod);
+  var total = subtotal + deliveryFee;
+  var deliveryConfig = getVendorDeliveryConfig();
+  var deliveryPayload = {
+    method: deliveryMethod,
+    fee: deliveryFee,
+    eta: deliveryConfig.eta,
+    zone: deliveryConfig.zones,
+    city: cityValue,
+    address: addressValue,
+    instructions: deliveryConfig.instructions
+  };
 
   trackEvent('checkout_start', {
     itemsCount: cart.length,
     total: total,
-    paymentMethod: paymentMethod
+    paymentMethod: paymentMethod,
+    deliveryMethod: deliveryMethod
   });
 
-  var checkout = await saveOrderToServer(clientNom.trim(), clientTel.trim(), cart, total, paymentMethod);
+  var checkout = await saveOrderToServer(clientNom, clientTel, cart, total, paymentMethod, deliveryPayload, notesValue);
   if (!checkout || !checkout.order) {
     alert('Impossible de valider la commande pour le moment');
     return;
@@ -390,8 +568,16 @@ async function orderAll() {
 
   var message = '*Nouvelle commande*\n\n';
   message += 'Commande : #' + orderId + '\n';
-  message += 'Client : ' + clientNom.trim() + '\n';
-  message += 'Tel : ' + clientTel.trim() + '\n\n';
+  message += 'Client : ' + clientNom + '\n';
+  message += 'Tel : ' + clientTel + '\n';
+  if (cityValue) {
+    message += 'Ville : ' + cityValue + '\n';
+  }
+  message += 'Livraison : ' + (deliveryMethod === 'pickup' ? 'Retrait boutique' : 'Livraison') + '\n';
+  if (deliveryMethod === 'delivery' && addressValue) {
+    message += 'Adresse : ' + addressValue + '\n';
+  }
+  message += '\n';
   
   cart.forEach(function(item) {
     var subtotal = item.prix * item.quantity;
@@ -404,7 +590,13 @@ async function orderAll() {
     message += '   Sous-total : ' + subtotal.toLocaleString() + ' FCFA\n\n';
   });
   
-  message += 'Paiement : ' + (paymentMethod === 'mobile_money' ? 'Mobile Money' : 'A la livraison') + '\n';
+  message += 'Paiement : ' + getPaymentLabel(paymentMethod) + '\n';
+  if (deliveryFee > 0) {
+    message += 'Frais de livraison : ' + deliveryFee.toLocaleString('fr-FR') + ' FCFA\n';
+  }
+  if (notesValue) {
+    message += 'Note : ' + notesValue + '\n';
+  }
   message += '*TOTAL : ' + total.toLocaleString() + ' FCFA*\n\n';
   message += 'Merci de confirmer la commande !';
   
@@ -428,7 +620,8 @@ async function orderAll() {
   trackEvent('order_submit', {
     orderId: orderId,
     total: total,
-    paymentMethod: paymentMethod
+    paymentMethod: paymentMethod,
+    deliveryMethod: deliveryMethod
   });
 
   showNotification('Commande enregistree !');
@@ -439,7 +632,7 @@ async function orderAll() {
 }
 
 
-async function saveOrderToServer(clientNom, clientTel, items, total, paymentMethod) {
+async function saveOrderToServer(clientNom, clientTel, items, total, paymentMethod, deliveryPayload, notes) {
   try {
     var res = await fetch('/api/orders', {
       method: 'POST',
@@ -451,6 +644,8 @@ async function saveOrderToServer(clientNom, clientTel, items, total, paymentMeth
         items: items,
         total: total,
         paymentMethod: paymentMethod,
+        delivery: deliveryPayload || {},
+        notes: notes || '',
         sessionId: analyticsSession
       })
     });

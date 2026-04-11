@@ -119,6 +119,26 @@ function trackExperiment(eventName, metadata) {
   } catch (e) {}
 }
 
+async function loginVendorAfterSignup(tel, password) {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tel: tel, password: password })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Connexion impossible apres inscription');
+  }
+  localStorage.setItem('vendeurToken', data.token);
+  localStorage.setItem('vendeurId', data.vendeur.id);
+  localStorage.setItem('vendeurNom', data.vendeur.nom);
+  localStorage.setItem('vendeurBoutique', data.vendeur.boutique);
+  localStorage.setItem('vendeurSlug', data.vendeur.slug || '');
+  localStorage.setItem('whabizLaunchTarget', 'vendeur');
+  localStorage.removeItem('whabizOnboardingSkipped:' + data.vendeur.id);
+  return data;
+}
+
 (function () {
   const nav = document.getElementById('navbar');
   if (!nav) return;
@@ -217,6 +237,7 @@ function trackExperiment(eventName, metadata) {
       boutique: document.getElementById('vendeurBoutique').value,
       tel: document.getElementById('vendeurTel').value,
       email: document.getElementById('vendeurEmail').value,
+      password: document.getElementById('vendeurPassword').value,
       plan: document.getElementById('vendeurPlan').value,
       produits: document.getElementById('vendeurProduits').value
     };
@@ -241,20 +262,12 @@ function trackExperiment(eventName, metadata) {
       trackAnalyticsEvent('signup_success', { vendeurId: vendeur.id || null, slug: vendeur.slug || '' });
       trackExperiment('signup_success', { slug: vendeur.slug || '' });
 
-      const phoneNumber = '22654576629';
-      const msg =
-        '*Nouvelle demande de boutique WhaBiz*\n\n' +
-        '*Nom :* ' + data.nom + '\n' +
-        '*Boutique :* ' + data.boutique + '\n' +
-        '*Tel :* ' + data.tel + '\n' +
-        (data.email ? '*Email :* ' + data.email + '\n' : '') +
-        '*Plan :* ' + data.plan + '\n' +
-        (data.produits ? '*Produits :* ' + data.produits + '\n' : '') +
-        '\n*Lien boutique :* ' + window.location.origin + '/' + vendeur.slug;
-
-      window.open('https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(msg), '_blank');
+      await loginVendorAfterSignup(data.tel, data.password);
       form.style.display = 'none';
       success.classList.add('show');
+      window.setTimeout(function () {
+        window.location.href = '/vendeur/onboarding?welcome=1';
+      }, 900);
     } catch (error) {
       console.error('Erreur:', error);
       alert('Erreur de connexion. Verifiez votre internet.');
